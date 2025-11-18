@@ -1,296 +1,280 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
-<html>
+<!DOCTYPE html>
+<html lang="en">
 <head>
-  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-  <meta http-equiv="Content-Style-Type" content="text/css">
-  <title></title>
-  <meta name="Generator" content="Cocoa HTML Writer">
-  <meta name="CocoaVersion" content="2685.1">
-  <style type="text/css">
-    p.p1 {margin: 0.0px 0.0px 0.0px 0.0px; font: 12.0px Helvetica}
-    p.p2 {margin: 0.0px 0.0px 0.0px 0.0px; font: 12.0px Helvetica; min-height: 14.0px}
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Makonian Vocabulary - Advanced Learning Platform</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
-<p class="p1">&lt;!DOCTYPE html&gt;</p>
-<p class="p1">&lt;html lang="en"&gt;</p>
-<p class="p1">&lt;head&gt;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;meta charset="UTF-8"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;meta name="viewport" content="width=device-width, initial-scale=1.0"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;title&gt;Makonian Vocabulary - Advanced Learning Platform&lt;/title&gt;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;link rel="stylesheet" href="css/styles.css"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"&gt;</p>
-<p class="p1">&lt;/head&gt;</p>
-<p class="p1">&lt;body&gt;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;div id="loading-screen"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="loading-spinner"&gt;&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;p&gt;Loading Makonian Vocabulary...&lt;/p&gt;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;/div&gt;</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;header class="header"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="container"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;div class="logo"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;i class="fas fa-book"&gt;&lt;/i&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;span&gt;Makonian&lt;/span&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;nav class="nav"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;button class="nav-btn active" data-section="home"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>&lt;i class="fas fa-home"&gt;&lt;/i&gt; Home</p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;/button&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;button class="nav-btn" data-section="units"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>&lt;i class="fas fa-layer-group"&gt;&lt;/i&gt; Units</p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;/button&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;button class="nav-btn" data-section="quiz"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>&lt;i class="fas fa-brain"&gt;&lt;/i&gt; Quiz</p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;/button&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;button class="nav-btn" data-section="progress"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>&lt;i class="fas fa-chart-line"&gt;&lt;/i&gt; Progress</p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;/button&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;/nav&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;div class="header-controls"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;button id="dark-mode-toggle"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>&lt;i class="fas fa-moon"&gt;&lt;/i&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;/button&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;div class="search-box"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>&lt;input type="text" id="search-input" placeholder="Search words..."&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>&lt;i class="fas fa-search"&gt;&lt;/i&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;/header&gt;</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;main class="main-content"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;!-- Home Section --&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;section id="home" class="section active"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;div class="hero"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;h1&gt;Master 1235 Advanced Vocabulary Words&lt;/h1&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;p&gt;Organized into 50 units of 25 words each with interactive learning tools&lt;/p&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;button class="cta-button" onclick="navigateToSection('units')"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>Start Learning &lt;i class="fas fa-arrow-right"&gt;&lt;/i&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;/button&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;div class="stats-grid"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;div class="stat-card"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>&lt;div class="stat-number" id="total-words"&gt;1235&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>&lt;div class="stat-label"&gt;Total Words&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;div class="stat-card"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>&lt;div class="stat-number" id="completed-units"&gt;0&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>&lt;div class="stat-label"&gt;Completed Units&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;div class="stat-card"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>&lt;div class="stat-number" id="study-streak"&gt;0&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>&lt;div class="stat-label"&gt;Day Streak&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;div class="stat-card"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>&lt;div class="stat-number" id="quiz-score"&gt;0%&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>&lt;div class="stat-label"&gt;Avg Quiz Score&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;div class="quick-actions"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;h2&gt;Quick Actions&lt;/h2&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;div class="action-grid"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>&lt;button class="action-card" onclick="continueStudying()"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                        </span>&lt;i class="fas fa-play"&gt;&lt;/i&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                        </span>&lt;span&gt;Continue Studying&lt;/span&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>&lt;/button&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>&lt;button class="action-card" onclick="takeQuickQuiz()"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                        </span>&lt;i class="fas fa-bolt"&gt;&lt;/i&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                        </span>&lt;span&gt;Quick Quiz&lt;/span&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>&lt;/button&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>&lt;button class="action-card" onclick="reviewDifficultWords()"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                        </span>&lt;i class="fas fa-exclamation-triangle"&gt;&lt;/i&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                        </span>&lt;span&gt;Review Difficult&lt;/span&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>&lt;/button&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>&lt;button class="action-card" onclick="exportProgress()"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                        </span>&lt;i class="fas fa-download"&gt;&lt;/i&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                        </span>&lt;span&gt;Export Progress&lt;/span&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>&lt;/button&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;/section&gt;</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;!-- Units Section --&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;section id="units" class="section"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;div class="section-header"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;h1&gt;Vocabulary Units&lt;/h1&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;div class="unit-controls"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>&lt;button id="grid-view-btn" class="view-btn active"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                        </span>&lt;i class="fas fa-th"&gt;&lt;/i&gt; Grid</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>&lt;/button&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>&lt;button id="list-view-btn" class="view-btn"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                        </span>&lt;i class="fas fa-list"&gt;&lt;/i&gt; List</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>&lt;/button&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>&lt;select id="difficulty-filter"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                        </span>&lt;option value="all"&gt;All Difficulties&lt;/option&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                        </span>&lt;option value="easy"&gt;Easy&lt;/option&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                        </span>&lt;option value="medium"&gt;Medium&lt;/option&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                        </span>&lt;option value="hard"&gt;Hard&lt;/option&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>&lt;/select&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;div id="units-container" class="units-grid"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;!-- Units will be dynamically generated --&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;/section&gt;</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;!-- Quiz Section --&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;section id="quiz" class="section"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;div class="quiz-container"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;div class="quiz-header"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>&lt;h1&gt;Vocabulary Quiz&lt;/h1&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>&lt;div class="quiz-controls"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                        </span>&lt;select id="quiz-unit-select"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                            </span>&lt;option value="random"&gt;Random Words&lt;/option&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                            </span>&lt;option value="difficult"&gt;Difficult Words&lt;/option&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                            </span>&lt;option value="all"&gt;All Words&lt;/option&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                        </span>&lt;/select&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                        </span>&lt;select id="quiz-type"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                            </span>&lt;option value="definition"&gt;Definition Quiz&lt;/option&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                            </span>&lt;option value="spelling"&gt;Spelling Quiz&lt;/option&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                            </span>&lt;option value="synonym"&gt;Synonym Quiz&lt;/option&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                        </span>&lt;/select&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                        </span>&lt;button id="start-quiz-btn" class="primary-btn"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                            </span>Start Quiz &lt;i class="fas fa-play"&gt;&lt;/i&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                        </span>&lt;/button&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;/div&gt;</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;div id="quiz-content" class="quiz-content"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>&lt;div class="quiz-welcome"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                        </span>&lt;i class="fas fa-brain"&gt;&lt;/i&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                        </span>&lt;h2&gt;Ready to test your knowledge?&lt;/h2&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                        </span>&lt;p&gt;Choose your quiz settings and click Start Quiz to begin!&lt;/p&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;/section&gt;</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;!-- Progress Section --&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;section id="progress" class="section"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;div class="progress-container"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;h1&gt;Your Progress&lt;/h1&gt;</p>
-<p class="p2"><span class="Apple-converted-space">                </span></p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;div class="progress-overview"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>&lt;div class="progress-card"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                        </span>&lt;h3&gt;Overall Progress&lt;/h3&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                        </span>&lt;div class="progress-circle" id="overall-progress"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                            </span>&lt;svg viewBox="0 0 100 100"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                                </span>&lt;circle cx="50" cy="50" r="45" stroke="#e0e0e0" stroke-width="10" fill="none"/&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                                </span>&lt;circle cx="50" cy="50" r="45" stroke="#8b5cf6" stroke-width="10" fill="none"</p>
-<p class="p1"><span class="Apple-converted-space">                                        </span>stroke-dasharray="283" stroke-dashoffset="283" id="progress-circle"/&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                            </span>&lt;/svg&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                            </span>&lt;div class="progress-text"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                                </span>&lt;span id="progress-percentage"&gt;0%&lt;/span&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                                </span>&lt;small&gt;Complete&lt;/small&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                            </span>&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                        </span>&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>&lt;/div&gt;</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">                    </span>&lt;div class="progress-card"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                        </span>&lt;h3&gt;Study Statistics&lt;/h3&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                        </span>&lt;div class="stats-list"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                            </span>&lt;div class="stat-item"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                                </span>&lt;span class="stat-label"&gt;Total Study Time&lt;/span&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                                </span>&lt;span class="stat-value" id="study-time"&gt;0h 0m&lt;/span&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                            </span>&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                            </span>&lt;div class="stat-item"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                                </span>&lt;span class="stat-label"&gt;Words Mastered&lt;/span&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                                </span>&lt;span class="stat-value" id="words-mastered"&gt;0&lt;/span&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                            </span>&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                            </span>&lt;div class="stat-item"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                                </span>&lt;span class="stat-label"&gt;Quiz Attempts&lt;/span&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                                </span>&lt;span class="stat-value" id="quiz-attempts"&gt;0&lt;/span&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                            </span>&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                            </span>&lt;div class="stat-item"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                                </span>&lt;span class="stat-label"&gt;Best Streak&lt;/span&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                                </span>&lt;span class="stat-value" id="best-streak"&gt;0&lt;/span&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                            </span>&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                        </span>&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;/div&gt;</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;div class="progress-chart"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>&lt;h3&gt;Weekly Activity&lt;/h3&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>&lt;canvas id="activity-chart"&gt;&lt;/canvas&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;/div&gt;</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;div class="difficult-words"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>&lt;h3&gt;Words Needing Review&lt;/h3&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>&lt;div id="difficult-words-list" class="words-list"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                        </span>&lt;!-- Difficult words will be populated here --&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;/section&gt;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;/main&gt;</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;!-- Unit Modal --&gt;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;div id="unit-modal" class="modal"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="modal-content"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;div class="modal-header"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;h2 id="modal-unit-title"&gt;&lt;/h2&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;button class="close-modal"&gt;&amp;times;&lt;/button&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;div class="modal-body" id="modal-words-list"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;!-- Words will be populated here --&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;div class="modal-footer"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;button id="study-unit-btn" class="primary-btn"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>&lt;i class="fas fa-book"&gt;&lt;/i&gt; Study This Unit</p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;/button&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;button id="quiz-unit-btn" class="secondary-btn"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>&lt;i class="fas fa-question-circle"&gt;&lt;/i&gt; Take Quiz</p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;/button&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;/div&gt;</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;!-- Word Detail Modal --&gt;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;div id="word-modal" class="modal"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="modal-content word-detail"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;div class="modal-header"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;h2 id="word-title"&gt;&lt;/h2&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;button class="close-modal"&gt;&amp;times;&lt;/button&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;div class="modal-body"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;div class="word-info"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>&lt;div class="definition-section"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                        </span>&lt;h3&gt;Definition&lt;/h3&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                        </span>&lt;p id="word-definition"&gt;&lt;/p&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>&lt;div class="synonyms-section"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                        </span>&lt;h3&gt;Synonyms&lt;/h3&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                        </span>&lt;div id="word-synonyms" class="synonyms-list"&gt;&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>&lt;div class="examples-section"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                        </span>&lt;h3&gt;Example Usage&lt;/h3&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                        </span>&lt;p id="word-example"&gt;&lt;/p&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;div class="word-actions"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>&lt;button id="mark-difficult" class="difficulty-btn"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                        </span>&lt;i class="fas fa-exclamation-triangle"&gt;&lt;/i&gt; Mark Difficult</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>&lt;/button&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>&lt;button id="mark-mastered" class="mastery-btn"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                        </span>&lt;i class="fas fa-check"&gt;&lt;/i&gt; Mark Mastered</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>&lt;/button&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>&lt;button id="add-to-favorites" class="favorite-btn"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                        </span>&lt;i class="fas fa-heart"&gt;&lt;/i&gt; Add to Favorites</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>&lt;/button&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;/div&gt;</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;script src="https://cdn.jsdelivr.net/npm/chart.js"&gt;&lt;/script&gt;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;script src="js/data.js"&gt;&lt;/script&gt;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;script src="js/app.js"&gt;&lt;/script&gt;</p>
-<p class="p1">&lt;/body&gt;</p>
-<p class="p1">&lt;/html&gt;</p>
+    <div id="loading-screen">
+        <div class="loading-spinner"></div>
+        <p>Loading Makonian Vocabulary...</p>
+    </div>
+
+    <header class="header">
+        <div class="container">
+            <div class="logo">
+                <i class="fas fa-book"></i>
+                <span>Makonian</span>
+            </div>
+            <nav class="nav">
+                <button class="nav-btn active" data-section="home">
+                    <i class="fas fa-home"></i> Home
+                </button>
+                <button class="nav-btn" data-section="units">
+                    <i class="fas fa-layer-group"></i> Units
+                </button>
+                <button class="nav-btn" data-section="quiz">
+                    <i class="fas fa-brain"></i> Quiz
+                </button>
+                <button class="nav-btn" data-section="progress">
+                    <i class="fas fa-chart-line"></i> Progress
+                </button>
+            </nav>
+            <div class="header-controls">
+                <button id="dark-mode-toggle">
+                    <i class="fas fa-moon"></i>
+                </button>
+                <div class="search-box">
+                    <input type="text" id="search-input" placeholder="Search words...">
+                    <i class="fas fa-search"></i>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="main-content">
+        <!-- Home Section -->
+        <section id="home" class="section active">
+            <div class="hero">
+                <h1>Master 1235 Advanced Vocabulary Words</h1>
+                <p>Organized into 50 units of 25 words each with interactive learning tools</p>
+                <button class="cta-button" onclick="navigateToSection('units')">
+                    Start Learning <i class="fas fa-arrow-right"></i>
+                </button>
+            </div>
+
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-number" id="total-words">1235</div>
+                    <div class="stat-label">Total Words</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="completed-units">0</div>
+                    <div class="stat-label">Completed Units</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="study-streak">0</div>
+                    <div class="stat-label">Day Streak</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="quiz-score">0%</div>
+                    <div class="stat-label">Avg Quiz Score</div>
+                </div>
+            </div>
+
+            <div class="quick-actions">
+                <h2>Quick Actions</h2>
+                <div class="action-grid">
+                    <button class="action-card" onclick="continueStudying()">
+                        <i class="fas fa-play"></i>
+                        <span>Continue Studying</span>
+                    </button>
+                    <button class="action-card" onclick="takeQuickQuiz()">
+                        <i class="fas fa-bolt"></i>
+                        <span>Quick Quiz</span>
+                    </button>
+                    <button class="action-card" onclick="reviewDifficultWords()">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <span>Review Difficult</span>
+                    </button>
+                    <button class="action-card" onclick="exportProgress()">
+                        <i class="fas fa-download"></i>
+                        <span>Export Progress</span>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Units Section -->
+        <section id="units" class="section">
+            <div class="section-header">
+                <h1>Vocabulary Units</h1>
+                <div class="unit-controls">
+                    <button id="grid-view-btn" class="view-btn active">
+                        <i class="fas fa-th"></i> Grid
+                    </button>
+                    <button id="list-view-btn" class="view-btn">
+                        <i class="fas fa-list"></i> List
+                    </button>
+                    <select id="difficulty-filter">
+                        <option value="all">All Difficulties</option>
+                        <option value="easy">Easy</option>
+                        <option value="medium">Medium</option>
+                        <option value="hard">Hard</option>
+                    </select>
+                </div>
+            </div>
+
+            <div id="units-container" class="units-grid">
+                <!-- Units will be dynamically generated -->
+            </div>
+        </section>
+
+        <!-- Quiz Section -->
+        <section id="quiz" class="section">
+            <div class="quiz-container">
+                <div class="quiz-header">
+                    <h1>Vocabulary Quiz</h1>
+                    <div class="quiz-controls">
+                        <select id="quiz-unit-select">
+                            <option value="random">Random Words</option>
+                            <option value="difficult">Difficult Words</option>
+                            <option value="all">All Words</option>
+                        </select>
+                        <select id="quiz-type">
+                            <option value="definition">Definition Quiz</option>
+                            <option value="spelling">Spelling Quiz</option>
+                            <option value="synonym">Synonym Quiz</option>
+                        </select>
+                        <button id="start-quiz-btn" class="primary-btn">
+                            Start Quiz <i class="fas fa-play"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div id="quiz-content" class="quiz-content">
+                    <div class="quiz-welcome">
+                        <i class="fas fa-brain"></i>
+                        <h2>Ready to test your knowledge?</h2>
+                        <p>Choose your quiz settings and click Start Quiz to begin!</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Progress Section -->
+        <section id="progress" class="section">
+            <div class="progress-container">
+                <h1>Your Progress</h1>
+                
+                <div class="progress-overview">
+                    <div class="progress-card">
+                        <h3>Overall Progress</h3>
+                        <div class="progress-circle" id="overall-progress">
+                            <svg viewBox="0 0 100 100">
+                                <circle cx="50" cy="50" r="45" stroke="#e0e0e0" stroke-width="10" fill="none"/>
+                                <circle cx="50" cy="50" r="45" stroke="#8b5cf6" stroke-width="10" fill="none"
+                                        stroke-dasharray="283" stroke-dashoffset="283" id="progress-circle"/>
+                            </svg>
+                            <div class="progress-text">
+                                <span id="progress-percentage">0%</span>
+                                <small>Complete</small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="progress-card">
+                        <h3>Study Statistics</h3>
+                        <div class="stats-list">
+                            <div class="stat-item">
+                                <span class="stat-label">Total Study Time</span>
+                                <span class="stat-value" id="study-time">0h 0m</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-label">Words Mastered</span>
+                                <span class="stat-value" id="words-mastered">0</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-label">Quiz Attempts</span>
+                                <span class="stat-value" id="quiz-attempts">0</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-label">Best Streak</span>
+                                <span class="stat-value" id="best-streak">0</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="progress-chart">
+                    <h3>Weekly Activity</h3>
+                    <canvas id="activity-chart"></canvas>
+                </div>
+
+                <div class="difficult-words">
+                    <h3>Words Needing Review</h3>
+                    <div id="difficult-words-list" class="words-list">
+                        <!-- Difficult words will be populated here -->
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Unit Modal -->
+    <div id="unit-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modal-unit-title"></h2>
+                <button class="close-modal">&times;</button>
+            </div>
+            <div class="modal-body" id="modal-words-list">
+                <!-- Words will be populated here -->
+            </div>
+            <div class="modal-footer">
+                <button id="study-unit-btn" class="primary-btn">
+                    <i class="fas fa-book"></i> Study This Unit
+                </button>
+                <button id="quiz-unit-btn" class="secondary-btn">
+                    <i class="fas fa-question-circle"></i> Take Quiz
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Word Detail Modal -->
+    <div id="word-modal" class="modal">
+        <div class="modal-content word-detail">
+            <div class="modal-header">
+                <h2 id="word-title"></h2>
+                <button class="close-modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="word-info">
+                    <div class="definition-section">
+                        <h3>Definition</h3>
+                        <p id="word-definition"></p>
+                    </div>
+                    <div class="synonyms-section">
+                        <h3>Synonyms</h3>
+                        <div id="word-synonyms" class="synonyms-list"></div>
+                    </div>
+                    <div class="examples-section">
+                        <h3>Example Usage</h3>
+                        <p id="word-example"></p>
+                    </div>
+                </div>
+                <div class="word-actions">
+                    <button id="mark-difficult" class="difficulty-btn">
+                        <i class="fas fa-exclamation-triangle"></i> Mark Difficult
+                    </button>
+                    <button id="mark-mastered" class="mastery-btn">
+                        <i class="fas fa-check"></i> Mark Mastered
+                    </button>
+                    <button id="add-to-favorites" class="favorite-btn">
+                        <i class="fas fa-heart"></i> Add to Favorites
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="js/data.js"></script>
+    <script src="js/app.js"></script>
 </body>
 </html>
