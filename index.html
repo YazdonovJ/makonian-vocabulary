@@ -4,35 +4,35 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Makonian Vocabulary - Advanced Learning Platform</title>
-    <link rel="stylesheet" href="css/styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Outfit:wght@300;400;500;700;900&display=swap" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
 
     <div id="loading-screen">
         <div class="loading-spinner"></div>
-        <p>Loading Makonian Vocabulary...</p>
+        <p style="margin-top: 1rem; letter-spacing: 2px; font-size: 0.9rem; text-transform: uppercase;">Initializing System...</p>
     </div>
 
     <header class="header">
         <div class="container">
             <div class="logo">
-                <i class="fas fa-book"></i>
-                <span>Makonian</span>
+                <i class="fas fa-infinity"></i>
+                <span>MAKONIAN</span>
             </div>
             <nav class="nav">
                 <button class="nav-btn active" data-section="home">
-                    <i class="fas fa-home"></i> Home
+                    <i class="fas fa-home"></i> <span class="desktop-only">Home</span>
                 </button>
                 <button class="nav-btn" data-section="units">
-                    <i class="fas fa-layer-group"></i> Units
+                    <i class="fas fa-layer-group"></i> <span class="desktop-only">Units</span>
                 </button>
                 <button class="nav-btn" data-section="quiz">
-                    <i class="fas fa-brain"></i> Quiz
+                    <i class="fas fa-brain"></i> <span class="desktop-only">Quiz</span>
                 </button>
                 <button class="nav-btn" data-section="progress">
-                    <i class="fas fa-chart-line"></i> Progress
+                    <i class="fas fa-chart-line"></i> <span class="desktop-only">Progress</span>
                 </button>
             </nav>
             <div class="header-controls">
@@ -40,8 +40,8 @@
                     <i class="fas fa-moon"></i>
                 </button>
                 <div class="search-box">
-                    <input type="text" id="search-input" placeholder="Search words...">
                     <i class="fa fa-search"></i>
+                    <input type="text" id="search-input" placeholder="Search...">
                 </div>
             </div>
         </div>
@@ -51,20 +51,21 @@
 
         <section id="home" class="section active">
             <div class="hero">
-                <h1>Master 1235 Advanced Vocabulary Words</h1>
-                <p>Organized into 50 units of 25 words each with interactive learning tools</p>
+                <h1>Master 1235 Advanced Words</h1>
+                <p>Elevate your vocabulary with our futuristic spaced-repetition system.</p>
                 <button class="cta-button" onclick="navigateToSection('units')">
                     Start Learning <i class="fas fa-arrow-right"></i>
                 </button>
             </div>
+            
             <div class="stats-grid">
                 <div class="stat-card">
                     <div class="stat-number" id="total-words">1235</div>
-                    <div class="stat-label">Total Words</div>
+                    <div class="stat-label">Total Database</div>
                 </div>
                 <div class="stat-card">
                     <div class="stat-number" id="completed-units">0</div>
-                    <div class="stat-label">Completed Units</div>
+                    <div class="stat-label">Units Completed</div>
                 </div>
                 <div class="stat-card">
                     <div class="stat-number" id="study-streak">0</div>
@@ -72,28 +73,28 @@
                 </div>
                 <div class="stat-card">
                     <div class="stat-number" id="quiz-score">0%</div>
-                    <div class="stat-label">Avg Quiz Score</div>
+                    <div class="stat-label">Avg. Accuracy</div>
                 </div>
             </div>
+
             <div class="quick-actions">
-                <h2>Quick Actions</h2>
                 <div class="action-grid">
-                    <button class="action-card" onclick="continueStudying()">
-                        <i class="fas fa-play"></i>
-                        <span>Continue Studying</span>
-                    </button>
-                    <button class="action-card" onclick="takeQuickQuiz()">
+                    <div class="action-card" onclick="continueStudying()">
+                        <i class="fas fa-play-circle"></i>
+                        <span>Continue</span>
+                    </div>
+                    <div class="action-card" onclick="takeQuickQuiz()">
                         <i class="fas fa-bolt"></i>
                         <span>Quick Quiz</span>
-                    </button>
-                    <button class="action-card" onclick="reviewDifficultWords()">
+                    </div>
+                    <div class="action-card" onclick="reviewDifficultWords()">
                         <i class="fas fa-exclamation-triangle"></i>
-                        <span>Review Difficult</span>
-                    </button>
-                    <button class="action-card" onclick="exportProgress()">
-                        <i class="fas fa-download"></i>
-                        <span>Export Progress</span>
-                    </button>
+                        <span>Review</span>
+                    </div>
+                    <div class="action-card" onclick="exportProgress()">
+                        <i class="fas fa-file-export"></i>
+                        <span>Export Data</span>
+                    </div>
                 </div>
             </div>
         </section>
@@ -102,12 +103,8 @@
             <div class="section-header">
                 <h1>Vocabulary Units</h1>
                 <div class="unit-controls">
-                    <button id="grid-view-btn" class="view-btn active">
-                        <i class="fas fa-th"></i> Grid
-                    </button>
-                    <button id="list-view-btn" class="view-btn">
-                        <i class="fas fa-list"></i> List
-                    </button>
+                    <button id="grid-view-btn" class="view-btn active"><i class="fas fa-th"></i></button>
+                    <button id="list-view-btn" class="view-btn"><i class="fas fa-list"></i></button>
                 </div>
             </div>
             <div id="units-container" class="units-grid">
@@ -117,28 +114,29 @@
         <section id="quiz" class="section">
             <div class="quiz-container">
                 <div class="quiz-header">
-                    <h1>Vocabulary Quiz</h1>
+                    <h1>Knowledge Check</h1>
                     <div class="quiz-controls">
                         <select id="quiz-unit-select">
-                            <option value="random">Random Words</option>
-                            <option value="difficult">Difficult Words</option>
+                            <option value="random">Random Mix</option>
+                            <option value="difficult">Difficult Only</option>
                             <option value="all">All Words</option>
                         </select>
                         <select id="quiz-type">
-                            <option value="definition">Definition Quiz</option>
-                            <option value="spelling">Spelling Quiz</option>
-                            <option value="synonym">Synonym Quiz</option>
+                            <option value="definition">Definitions</option>
+                            <option value="synonym">Synonyms</option>
+                            <option value="spelling">Spelling</option>
                         </select>
-                        <button id="start-quiz-btn" class="primary-btn">
-                            Start Quiz <i class="fas fa-play"></i>
-                        </button>
                     </div>
                 </div>
+                
                 <div id="quiz-content" class="quiz-content">
                     <div class="quiz-welcome">
-                        <i class="fas fa-brain"></i>
-                        <h2>Ready to test your knowledge?</h2>
-                        <p>Choose your quiz settings and click Start Quiz to begin!</p>
+                        <i class="fas fa-brain" style="font-size: 4rem; margin-bottom: 1rem; color: var(--neon-violet);"></i>
+                        <h2>Ready to test your skills?</h2>
+                        <p>Configure your session above and click Start.</p>
+                        <button id="start-quiz-btn" class="primary-btn" style="margin-top: 2rem;">
+                            Initialize Quiz <i class="fas fa-play"></i>
+                        </button>
                     </div>
                 </div>
             </div>
@@ -146,51 +144,49 @@
 
         <section id="progress" class="section">
             <div class="progress-container">
-                <h1>Your Progress</h1>
+                <h1>Neural Progress</h1>
+                
                 <div class="progress-overview">
                     <div class="progress-card">
-                        <h3>Overall Progress</h3>
+                        <h3>Retention Rate</h3>
                         <div class="progress-circle" id="overall-progress">
                             <svg viewBox="0 0 100 100">
-                                <circle cx="50" cy="50" r="45" stroke="#e0e0e0" stroke-width="10" fill="none"/>
-                                <circle cx="50" cy="50" r="45" stroke="#8b5cf6" stroke-width="10" fill="none"
+                                <circle cx="50" cy="50" r="45" stroke="rgba(255,255,255,0.1)" stroke-width="8" fill="none"/>
+                                <circle cx="50" cy="50" r="45" stroke="var(--neon-blue)" stroke-width="8" fill="none"
                                         stroke-dasharray="283" stroke-dashoffset="283" id="progress-circle"/>
                             </svg>
                             <div class="progress-text">
                                 <span id="progress-percentage">0%</span>
-                                <small>Complete</small>
                             </div>
                         </div>
                     </div>
+                    
                     <div class="progress-card">
-                        <h3>Study Statistics</h3>
+                        <h3>Stats Breakdown</h3>
                         <div class="stats-list">
                             <div class="stat-item">
-                                <span class="stat-label">Total Study Time</span>
+                                <span class="stat-label">Study Time</span>
                                 <span class="stat-value" id="study-time">0h 0m</span>
                             </div>
                             <div class="stat-item">
-                                <span class="stat-label">Words Mastered</span>
+                                <span class="stat-label">Mastered</span>
                                 <span class="stat-value" id="words-mastered">0</span>
                             </div>
                             <div class="stat-item">
-                                <span class="stat-label">Quiz Attempts</span>
+                                <span class="stat-label">Attempts</span>
                                 <span class="stat-value" id="quiz-attempts">0</span>
-                            </div>
-                            <div class="stat-item">
-                                <span class="stat-label">Best Streak</span>
-                                <span class="stat-value" id="best-streak">0</span>
                             </div>
                         </div>
                     </div>
                 </div>
 
                 <div class="progress-chart">
-                    <h3>Weekly Activity</h3>
+                    <h3>Activity Log</h3>
                     <canvas id="activity-chart"></canvas>
                 </div>
+                
                 <div class="difficult-words">
-                    <h3>Words Needing Review</h3>
+                    <h3>Critical Review Needed</h3>
                     <div id="difficult-words-list" class="words-list">
                         </div>
                 </div>
@@ -202,17 +198,17 @@
     <div id="unit-modal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
-                <h2 id="modal-unit-title"></h2>
-                <button class="close-modal">&times;</button>
+                <h2 id="modal-unit-title">Unit Title</h2>
+                <button class="close-modal" onclick="app.closeModal('unit-modal')">&times;</button>
             </div>
             <div class="modal-body" id="modal-words-list">
                 </div>
             <div class="modal-footer">
                 <button id="study-unit-btn" class="primary-btn">
-                    <i class="fas fa-book"></i> Study This Unit
+                    <i class="fas fa-book-open"></i> Study Mode
                 </button>
                 <button id="quiz-unit-btn" class="secondary-btn">
-                    <i class="fas fa-question-circle"></i> Take Quiz
+                    <i class="fas fa-question-circle"></i> Unit Quiz
                 </button>
             </div>
         </div>
@@ -220,51 +216,50 @@
 
     <div id="word-modal" class="modal">
         <div class="modal-content word-detail">
-            
             <div class="modal-header">
-                <div style="display: flex; align-items: center; gap: 10px;">
-                    <h2 id="word-title"></h2>
-                    <button id="audio-btn" class="audio-btn" title="Listen to pronunciation">
+                <div style="display: flex; align-items: center; gap: 15px;">
+                    <h2 id="word-title">Word</h2>
+                    <button id="audio-btn" class="audio-btn" title="Pronounce">
                         <i class="fas fa-volume-up"></i>
                     </button>
                 </div>
-                <button class="close-modal">&times;</button>
+                <button class="close-modal" onclick="app.closeModal('word-modal')">&times;</button>
             </div>
-
+            
             <div class="modal-body">
                 <div class="word-info">
                     <div class="definition-section">
                         <h3>Definition</h3>
-                        <p id="word-definition"></p>
+                        <p id="word-definition">...</p>
                     </div>
                     <div class="synonyms-section">
                         <h3>Synonyms</h3>
                         <div id="word-synonyms" class="synonyms-list"></div>
                     </div>
                     <div class="examples-section">
-                        <h3>Example Usage</h3>
-                        <p id="word-example"></p>
+                        <h3>Usage</h3>
+                        <p id="word-example" style="font-style: italic; color: var(--text-muted);">...</p>
                     </div>
                 </div>
 
                 <div class="word-actions">
                     <button id="mark-difficult" class="difficulty-btn">
-                        <i class="fas fa-exclamation-triangle"></i> Mark Difficult
+                        <i class="fas fa-exclamation-triangle"></i> Difficult
                     </button>
                     <button id="mark-mastered" class="mastery-btn">
-                        <i class="fas fa-check"></i> Mark Mastered
+                        <i class="fas fa-check-circle"></i> Mastered
                     </button>
                     <button id="add-to-favorites" class="favorite-btn">
-                        <i class="far fa-heart"></i> Add to Favorites
+                        <i class="far fa-heart"></i> Favorite
                     </button>
                 </div>
 
                 <div class="word-navigation">
                     <button id="prev-word-btn" class="nav-arrow-btn">
-                       <i class="fas fa-arrow-left"></i> Previous
+                       <i class="fas fa-chevron-left"></i> Previous
                     </button>
                     <button id="next-word-btn" class="nav-arrow-btn primary-nav">
-                       Next Word <i class="fas fa-arrow-right"></i>
+                       Next Word <i class="fas fa-chevron-right"></i>
                     </button>
                 </div>
             </div>
@@ -272,6 +267,7 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
     <script src="js/data.js"></script>
     <script src="js/app.js"></script>
 </body>
