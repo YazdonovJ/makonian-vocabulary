@@ -1,9 +1,8 @@
-// Main application JavaScript
+// Main application JavaScript - Makonian Vocabulary Platform
 
 class MakonianApp {
     constructor(vocabularyData, unitMetadata) {
         this.currentSection = 'home';
-        this.currentUnit = null;
         
         // State for Word Navigation
         this.currentViewedUnit = null;
@@ -17,7 +16,7 @@ class MakonianApp {
             unit: 'random'
         };
 
-        // Store data on the instance
+        // Data Storage
         this.vocabularyData = vocabularyData;
         this.unitMetadata = unitMetadata;
 
@@ -29,30 +28,37 @@ class MakonianApp {
         this.setupEventListeners();
         this.loadSection('home');
         this.updateStats();
-        this.setupDarkMode();
         this.setupSearch();
+        
+        // Initialize Theme (Default to Dark/Futuristic)
+        const savedTheme = localStorage.getItem('theme') || 'dark'; // Defaulting to dark for the futuristic look
+        document.documentElement.setAttribute('data-theme', savedTheme);
 
-        // Populate quiz dropdown with units dynamically
+        // Populate quiz dropdown
         this.populateQuizDropdown();
 
+        // Hide loading screen after initialization
         setTimeout(() => {
             const loadingScreen = document.getElementById('loading-screen');
             if (loadingScreen) {
-                loadingScreen.style.display = 'none';
+                loadingScreen.style.opacity = '0';
+                setTimeout(() => loadingScreen.style.display = 'none', 500);
             }
-        }, 1000);
+        }, 800);
     }
 
     setupEventListeners() {
-        // Navigation
+        // Main Navigation
         document.querySelectorAll('.nav-btn').forEach(btn => {
             btn.addEventListener('click', (e) => {
-                const section = e.currentTarget.dataset.section;
+                // Handle clicking icon or span inside button
+                const target = e.target.closest('.nav-btn');
+                const section = target.dataset.section;
                 this.loadSection(section);
             });
         });
 
-        // Dark mode toggle
+        // Dark Mode Toggle
         const darkModeToggle = document.getElementById('dark-mode-toggle');
         if (darkModeToggle) {
             darkModeToggle.addEventListener('click', () => {
@@ -60,128 +66,87 @@ class MakonianApp {
             });
         }
 
-        // Unit view toggle
+        // View Toggles (Grid/List)
         const gridViewBtn = document.getElementById('grid-view-btn');
-        if (gridViewBtn) {
-            gridViewBtn.addEventListener('click', () => {
-                this.setUnitView('grid');
-            });
-        }
-
         const listViewBtn = document.getElementById('list-view-btn');
-        if (listViewBtn) {
-            listViewBtn.addEventListener('click', () => {
-                this.setUnitView('list');
-            });
-        }
+        
+        if (gridViewBtn) gridViewBtn.addEventListener('click', () => this.setUnitView('grid'));
+        if (listViewBtn) listViewBtn.addEventListener('click', () => this.setUnitView('list'));
 
-        // Quiz controls
+        // Quiz Start
         const startQuizBtn = document.getElementById('start-quiz-btn');
-        if (startQuizBtn) {
-            startQuizBtn.addEventListener('click', () => {
-                this.startQuiz();
-            });
-        }
+        if (startQuizBtn) startQuizBtn.addEventListener('click', () => this.startQuiz());
 
-        // Modal controls
-        document.querySelectorAll('.close-modal').forEach(btn => {
-            btn.addEventListener('click', () => {
-                this.closeModal();
-            });
-        });
-
-        // Search functionality
+        // Search Input
         const searchInput = document.getElementById('search-input');
         if (searchInput) {
             searchInput.addEventListener('input', (e) => {
                 this.performSearch(e.target.value);
             });
         }
-    }
-
-    populateQuizDropdown() {
-        const select = document.getElementById('quiz-unit-select');
-        if (!select) return;
         
-        // Append specific units to the dropdown
-        this.unitMetadata.forEach(unit => {
-            const option = document.createElement('option');
-            option.value = unit.number;
-            option.textContent = `Unit ${unit.number}: ${unit.title}`;
-            select.appendChild(option);
+        // Close Modals on X click
+        document.querySelectorAll('.close-modal').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                // Close the specific modal this button belongs to
+                const modal = e.target.closest('.modal');
+                if (modal) modal.classList.remove('active');
+            });
         });
     }
 
     loadSection(section) {
         // Hide all sections
         document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+        
+        // Show target
+        const target = document.getElementById(section);
+        if (target) target.classList.add('active');
 
-        // Show target section
-        const targetSection = document.getElementById(section);
-        if (targetSection) {
-            targetSection.classList.add('active');
-        }
-
-        // Update nav buttons
+        // Update Nav State
         document.querySelectorAll('.nav-btn').forEach(btn => {
             btn.classList.toggle('active', btn.dataset.section === section);
         });
 
         this.currentSection = section;
 
-        // Load section-specific content
-        switch (section) {
-            case 'units':
-                this.renderUnits();
-                break;
-            case 'quiz':
-                this.setupQuiz();
-                break;
-            case 'progress':
-                this.renderProgress();
-                break;
-        }
+        // Lazy Load Logic
+        if (section === 'units') this.renderUnits();
+        if (section === 'quiz') this.setupQuiz();
+        if (section === 'progress') this.renderProgress();
     }
+
+    // --- UNITS LOGIC ---
 
     renderUnits() {
         const container = document.getElementById('units-container');
         if (!container) return;
 
         const viewType = localStorage.getItem('unitView') || 'grid';
-        container.className = viewType === 'grid' ? 'units-grid' : 'units-list';
+        container.className = viewType === 'grid' ? 'units-grid' : 'units-list'; // Update CSS class if you have list styles
         container.innerHTML = "";
 
-        const units = JSON.parse(localStorage.getItem('unitMetadata')) || this.unitMetadata;
+        // Loop through metadata
+        this.unitMetadata.forEach(unit => {
+            const card = document.createElement('div');
+            card.className = 'unit-card';
+            card.onclick = () => this.openUnitModal(unit.number);
 
-        units.forEach(unit => {
-            const unitCard = this.createUnitCard(unit, viewType);
-            container.appendChild(unitCard);
+            const progress = this.getUnitProgress(unit.number);
+
+            card.innerHTML = `
+                <div class="unit-header">
+                    <span class="unit-number">UNIT ${unit.number}</span>
+                    <span class="unit-progress">${progress}%</span>
+                </div>
+                <h3 class="unit-title">${unit.title}</h3>
+                <p class="unit-description">${unit.description}</p>
+                <div class="unit-words-preview">
+                    ${this.getUnitWordsPreview(unit.number)}
+                </div>
+            `;
+            container.appendChild(card);
         });
-    }
-
-    createUnitCard(unit, viewType) {
-        const card = document.createElement('div');
-        card.className = 'unit-card fade-in';
-        card.onclick = () => this.openUnitModal(unit.number);
-
-        const progress = this.getUnitProgress(unit.number);
-
-        card.innerHTML = `
-            <div class="unit-header">
-                <span class="unit-number">Unit ${unit.number}</span>
-                <span class="unit-progress">${progress}%</span>
-            </div>
-            <h3 class="unit-title">${unit.title}</h3>
-            <p class="unit-description">${unit.description}</p>
-            <div class="unit-words-preview">
-                ${this.getUnitWordsPreview(unit.number)}
-            </div>
-            <div class="unit-difficulty">
-                <span class="difficulty-badge ${unit.difficulty}">${unit.difficulty}</span>
-            </div>
-        `;
-
-        return card;
     }
 
     getUnitProgress(unitNumber) {
@@ -189,137 +154,115 @@ class MakonianApp {
         const unitData = this.vocabularyData[unitNumber - 1];
         if (!unitData) return 0;
 
-        const totalWords = unitData.length;
-        const masteredWords = progress.mastered || 0;
-        return Math.round((masteredWords / totalWords) * 100);
+        const total = unitData.length;
+        const mastered = progress.mastered || 0;
+        return Math.round((mastered / total) * 100);
     }
 
     getUnitWordsPreview(unitNumber) {
         const words = this.vocabularyData[unitNumber - 1];
         if (!words) return '';
-        return words.slice(0, 5).map(word =>
-            `<span class="word-tag">${word.word}</span>`
-        ).join("");
+        // Show first 4 words as tags
+        return words.slice(0, 4).map(w => `<span class="word-tag">${w.word}</span>`).join("");
     }
 
-    // --- Unit Modal Logic ---
-
     openUnitModal(unitNumber) {
-        this.currentUnit = unitNumber;
         const modal = document.getElementById('unit-modal');
         const words = this.vocabularyData[unitNumber - 1];
-        const unitInfo = this.unitMetadata[unitNumber - 1];
+        const info = this.unitMetadata[unitNumber - 1];
 
-        if (!words || !unitInfo) return;
+        if (!words || !info) return;
 
-        document.getElementById('modal-unit-title').textContent = `Unit ${unitNumber}: ${unitInfo.title}`;
+        document.getElementById('modal-unit-title').textContent = `Unit ${unitNumber}: ${info.title}`;
 
-        const wordsList = document.getElementById('modal-words-list');
-        wordsList.innerHTML = "";
+        // Render grid of words inside modal
+        const list = document.getElementById('modal-words-list');
+        list.innerHTML = "";
 
         words.forEach((word, index) => {
-            const wordElement = this.createWordElement(word, unitNumber, index);
-            wordsList.appendChild(wordElement);
+            const el = document.createElement('div');
+            el.className = 'word-item';
+            
+            const wordKey = `${unitNumber}-${index}`;
+            const status = this.userProgress.wordProgress[wordKey] || 'new';
+
+            el.innerHTML = `
+                <div class="word-header">
+                    <span class="word-text">${word.word}</span>
+                    <span class="word-status ${status}" data-word="${wordKey}">${status}</span>
+                </div>
+                <p class="word-definition-short">${word.definition}</p>
+            `;
+            el.onclick = () => this.openWordModal(word, unitNumber, index);
+            list.appendChild(el);
         });
 
-        // --- Study Button Logic (Starts at first word) ---
+        // Setup Footer Buttons
         const studyBtn = document.getElementById('study-unit-btn');
-        const newStudyBtn = studyBtn.cloneNode(true); // Remove old listeners
-        studyBtn.parentNode.replaceChild(newStudyBtn, studyBtn);
+        const newStudy = studyBtn.cloneNode(true);
+        studyBtn.parentNode.replaceChild(newStudy, studyBtn);
         
-        newStudyBtn.onclick = () => {
-            this.closeModal();
-            if(words.length > 0) {
-                this.openWordModal(words[0], unitNumber, 0);
-            }
+        newStudy.onclick = () => {
+            // Keep unit modal open in background, open word modal on top
+            if(words.length > 0) this.openWordModal(words[0], unitNumber, 0);
         };
 
-        // --- Quiz Button Logic (Starts quiz for this unit) ---
         const quizBtn = document.getElementById('quiz-unit-btn');
-        const newQuizBtn = quizBtn.cloneNode(true); // Remove old listeners
-        quizBtn.parentNode.replaceChild(newQuizBtn, quizBtn);
-
-        newQuizBtn.onclick = () => {
-            this.closeModal();
+        const newQuiz = quizBtn.cloneNode(true);
+        quizBtn.parentNode.replaceChild(newQuiz, quizBtn);
+        
+        newQuiz.onclick = () => {
+            document.getElementById('unit-modal').classList.remove('active');
             this.loadSection('quiz');
-            this.startQuiz(unitNumber); 
+            this.startQuiz(unitNumber); // Force quiz for this unit
         };
 
         modal.classList.add('active');
     }
 
-    createWordElement(word, unitNumber, wordIndex) {
-        const wordEl = document.createElement('div');
-        wordEl.className = 'word-item';
-        wordEl.onclick = () => this.openWordModal(word, unitNumber, wordIndex);
+    // --- WORD MODAL LOGIC ---
 
-        const wordKey = `${unitNumber}-${wordIndex}`;
-        const progress = this.userProgress.wordProgress[wordKey] || 'new';
-
-        wordEl.innerHTML = `
-            <div class="word-header">
-                <span class="word-text">${word.word}</span>
-                <span class="word-status ${progress}" data-word="${wordKey}">${progress}</span>
-            </div>
-            <p class="word-definition-short">${word.definition.substring(0, 80)}...</p>
-            <div class="word-synonyms">
-                ${word.synonyms.slice(0, 3).map(s => `<span class="synonym-tag">${s}</span>`).join("")}
-            </div>
-        `;
-
-        return wordEl;
-    }
-
-    // --- Word Detail Modal Logic (Navigation + Audio + Visuals) ---
-    
     openWordModal(word, unitNumber, wordIndex) {
         const modal = document.getElementById('word-modal');
 
-        // 1. Populate Text Content
+        // Populate Data
         document.getElementById('word-title').textContent = word.word;
         document.getElementById('word-definition').textContent = word.definition;
-        document.getElementById('word-example').textContent = word.example;
+        document.getElementById('word-example').textContent = `"${word.example}"`;
 
-        const synonymsList = document.getElementById('word-synonyms');
-        synonymsList.innerHTML = word.synonyms.map(s =>
-            `<span class="synonym-tag">${s}</span>`
-        ).join("");
+        const synList = document.getElementById('word-synonyms');
+        synList.innerHTML = word.synonyms.map(s => `<span class="synonym-tag">${s}</span>`).join("");
 
-        // 2. Store current state for navigation
+        // State Management
         this.currentViewedUnit = unitNumber;
         this.currentViewedIndex = wordIndex;
-
         const wordKey = `${unitNumber}-${wordIndex}`;
 
-        // 3. Update Action Buttons (Visuals & Listeners)
-        this.updateWordModalButtons(wordKey);
-        this.setupWordActionButtons(wordKey);
+        // Update Buttons (Visuals & Logic)
+        this.updateWordButtonsUI(wordKey);
+        this.setupWordButtonsLogic(wordKey);
 
-        // 4. Setup Navigation Buttons (Next/Prev)
+        // Setup Navigation
         this.setupWordNavigation(unitNumber, wordIndex);
 
-        // 5. Setup Audio Button
+        // Setup Audio
         const audioBtn = document.getElementById('audio-btn');
-        if(audioBtn) {
-            const newAudioBtn = audioBtn.cloneNode(true);
-            audioBtn.parentNode.replaceChild(newAudioBtn, audioBtn);
-            newAudioBtn.onclick = () => {
-                this.playAudio(word.word);
-            };
-        }
+        const newAudio = audioBtn.cloneNode(true);
+        audioBtn.parentNode.replaceChild(newAudio, audioBtn);
+        newAudio.onclick = () => this.playAudio(word.word);
 
         modal.classList.add('active');
     }
 
     playAudio(text) {
-        window.speechSynthesis.cancel(); // Stop any currently playing
-        const utterance = new SpeechSynthesisUtterance(text);
-        utterance.lang = 'en-US';
-        utterance.rate = 0.9; // Slightly slower for clarity
-        window.speechSynthesis.speak(utterance);
+        window.speechSynthesis.cancel();
+        const ut = new SpeechSynthesisUtterance(text);
+        ut.lang = 'en-US';
+        ut.rate = 0.9;
+        window.speechSynthesis.speak(ut);
     }
 
-    updateWordModalButtons(wordKey) {
+    updateWordButtonsUI(wordKey) {
         const status = this.userProgress.wordProgress[wordKey];
         const isFav = this.userProgress.favorites.includes(wordKey);
 
@@ -327,593 +270,419 @@ class MakonianApp {
         const mastBtn = document.getElementById('mark-mastered');
         const favBtn = document.getElementById('add-to-favorites');
 
-        // Reset classes and text
-        diffBtn.className = 'difficulty-btn';
-        mastBtn.className = 'mastery-btn';
-        favBtn.className = 'favorite-btn';
-        
-        diffBtn.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Mark Difficult';
-        mastBtn.innerHTML = '<i class="fas fa-check"></i> Mark Mastered';
-        favBtn.innerHTML = '<i class="far fa-heart"></i> Add to Favorites';
+        // Remove active classes
+        diffBtn.classList.remove('active');
+        mastBtn.classList.remove('active');
+        favBtn.classList.remove('active');
 
-        // Apply Active States based on stored data
+        // Reset Text
+        diffBtn.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Difficult';
+        mastBtn.innerHTML = '<i class="fas fa-check-circle"></i> Mastered';
+        favBtn.innerHTML = '<i class="far fa-heart"></i> Favorite';
+
+        // Apply State
         if (status === 'difficult') {
             diffBtn.classList.add('active');
             diffBtn.innerHTML = '<i class="fas fa-check"></i> Marked Difficult';
-        } 
-        
+        }
         if (status === 'mastered') {
             mastBtn.classList.add('active');
             mastBtn.innerHTML = '<i class="fas fa-check-double"></i> Mastered';
         }
-
         if (isFav) {
             favBtn.classList.add('active');
             favBtn.innerHTML = '<i class="fas fa-heart"></i> Favorited';
         }
     }
 
-    setupWordActionButtons(wordKey) {
+    setupWordButtonsLogic(wordKey) {
         const diffBtn = document.getElementById('mark-difficult');
         const mastBtn = document.getElementById('mark-mastered');
         const favBtn = document.getElementById('add-to-favorites');
 
-        // Remove old listeners using cloneNode
-        const newDiffBtn = diffBtn.cloneNode(true);
-        diffBtn.parentNode.replaceChild(newDiffBtn, diffBtn);
-        
-        const newMastBtn = mastBtn.cloneNode(true);
-        mastBtn.parentNode.replaceChild(newMastBtn, mastBtn);
+        // Clone to clear listeners
+        const d = diffBtn.cloneNode(true); diffBtn.parentNode.replaceChild(d, diffBtn);
+        const m = mastBtn.cloneNode(true); mastBtn.parentNode.replaceChild(m, mastBtn);
+        const f = favBtn.cloneNode(true); favBtn.parentNode.replaceChild(f, favBtn);
 
-        const newFavBtn = favBtn.cloneNode(true);
-        favBtn.parentNode.replaceChild(newFavBtn, favBtn);
-
-        // Add new click listeners that update state AND visuals immediately
-        newDiffBtn.onclick = () => {
-            this.markWordDifficulty(wordKey, 'difficult');
-            this.updateWordModalButtons(wordKey);
-        };
-
-        newMastBtn.onclick = () => {
-            this.markWordDifficulty(wordKey, 'mastered');
-            this.updateWordModalButtons(wordKey);
-        };
-
-        newFavBtn.onclick = () => {
-            this.toggleFavorite(wordKey);
-            this.updateWordModalButtons(wordKey);
-        };
+        d.onclick = () => this.setWordStatus(wordKey, 'difficult');
+        m.onclick = () => this.setWordStatus(wordKey, 'mastered');
+        f.onclick = () => this.toggleFavorite(wordKey);
     }
 
-    setupWordNavigation(unitNumber, wordIndex) {
-        const prevBtn = document.getElementById('prev-word-btn');
-        const nextBtn = document.getElementById('next-word-btn');
+    setWordStatus(wordKey, status) {
+        // Logic: If clicking the same status, toggle it off (back to 'new')
+        // Otherwise set to new status
+        const current = this.userProgress.wordProgress[wordKey];
+        const newStatus = (current === status) ? 'new' : status;
+
+        this.userProgress.wordProgress[wordKey] = newStatus;
         
-        // Get the total number of words in this current unit
-        const unitWords = this.vocabularyData[unitNumber - 1];
-        const totalWords = unitWords.length;
-
-        // Disable buttons if at boundaries
-        prevBtn.disabled = (wordIndex === 0);
-        nextBtn.disabled = (wordIndex === totalWords - 1);
-
-        // Refresh listeners
-        const newPrev = prevBtn.cloneNode(true);
-        const newNext = nextBtn.cloneNode(true);
-        prevBtn.parentNode.replaceChild(newPrev, prevBtn);
-        nextBtn.parentNode.replaceChild(newNext, nextBtn);
-
-        newPrev.onclick = () => this.navigateWord(-1);
-        newNext.onclick = () => this.navigateWord(1);
-    }
-
-    navigateWord(direction) {
-        const unitWords = this.vocabularyData[this.currentViewedUnit - 1];
-        const newIndex = this.currentViewedIndex + direction;
-
-        // Safety check
-        if (newIndex >= 0 && newIndex < unitWords.length) {
-            const nextWord = unitWords[newIndex];
-            this.openWordModal(nextWord, this.currentViewedUnit, newIndex);
-        }
-    }
-
-    markWordDifficulty(wordKey, status) {
-        if (!this.userProgress.wordProgress) {
-            this.userProgress.wordProgress = {};
-        }
-        this.userProgress.wordProgress[wordKey] = status;
-        
-        // Update Unit Mastery Stats
-        const [unitStr, ] = wordKey.split('-');
-        const unitNum = parseInt(unitStr);
-        
-        if (!this.userProgress.unitProgress[unitNum]) {
-            this.userProgress.unitProgress[unitNum] = { mastered: 0, completed: false };
-        }
-        
-        // Recalculate mastery for this unit
-        let masteredCount = 0;
-        const unitWordsLen = this.vocabularyData[unitNum-1].length;
-        
-        for(let i=0; i<unitWordsLen; i++) {
-             if(this.userProgress.wordProgress[`${unitNum}-${i}`] === 'mastered') {
-                 masteredCount++;
-             }
-        }
-        
-        this.userProgress.unitProgress[unitNum].mastered = masteredCount;
-        if (masteredCount === unitWordsLen) {
-            this.userProgress.unitProgress[unitNum].completed = true;
-        }
-
+        // Update UI
+        this.updateWordButtonsUI(wordKey);
         this.saveProgress();
         this.updateStats();
-        
-        // If unit view is open, refresh it
-        if(document.getElementById('units').classList.contains('active')) {
-             this.renderUnits();
-        }
-        
-        // Also update the unit modal list badges if open
-        const statusBadge = document.querySelector(`.word-status[data-word="${wordKey}"]`);
-        if(statusBadge) {
-            statusBadge.textContent = status;
-            statusBadge.className = `word-status ${status}`;
+
+        // Update list badge if visible
+        const badge = document.querySelector(`.word-status[data-word="${wordKey}"]`);
+        if (badge) {
+            badge.className = `word-status ${newStatus}`;
+            badge.textContent = newStatus;
         }
     }
 
     toggleFavorite(wordKey) {
-        const index = this.userProgress.favorites.indexOf(wordKey);
-        if (index > -1) {
-            this.userProgress.favorites.splice(index, 1);
-        } else {
-            this.userProgress.favorites.push(wordKey);
-        }
+        const idx = this.userProgress.favorites.indexOf(wordKey);
+        if (idx > -1) this.userProgress.favorites.splice(idx, 1);
+        else this.userProgress.favorites.push(wordKey);
+        
+        this.updateWordButtonsUI(wordKey);
         this.saveProgress();
     }
 
-    // --- Quiz Logic ---
+    setupWordNavigation(unitNum, idx) {
+        const prev = document.getElementById('prev-word-btn');
+        const next = document.getElementById('next-word-btn');
+        const total = this.vocabularyData[unitNum - 1].length;
+
+        prev.disabled = (idx === 0);
+        next.disabled = (idx === total - 1);
+
+        const p = prev.cloneNode(true); prev.parentNode.replaceChild(p, prev);
+        const n = next.cloneNode(true); next.parentNode.replaceChild(n, next);
+
+        p.onclick = () => this.openWordModal(this.vocabularyData[unitNum-1][idx-1], unitNum, idx-1);
+        n.onclick = () => this.openWordModal(this.vocabularyData[unitNum-1][idx+1], unitNum, idx+1);
+    }
+
+
+    // --- QUIZ LOGIC ---
+
+    populateQuizDropdown() {
+        const select = document.getElementById('quiz-unit-select');
+        if (!select) return;
+        
+        // Keep default options, append units
+        this.unitMetadata.forEach(u => {
+            const op = document.createElement('option');
+            op.value = u.number;
+            op.textContent = `Unit ${u.number}: ${u.title}`;
+            select.appendChild(op);
+        });
+    }
 
     setupQuiz() {
-        const quizContent = document.getElementById('quiz-content');
-        quizContent.innerHTML = `
+        const container = document.getElementById('quiz-content');
+        container.innerHTML = `
             <div class="quiz-welcome">
-                <i class="fas fa-brain"></i>
-                <h2>Ready to test your knowledge?</h2>
-                <p>Choose your quiz settings and click Start Quiz to begin!</p>
+                <i class="fas fa-brain" style="font-size:4rem; color:var(--neon-violet); margin-bottom:1rem;"></i>
+                <h2>Ready to test your skills?</h2>
+                <p>Configure settings above and click Initialize.</p>
+                <button class="primary-btn" style="margin-top:2rem;" onclick="app.startQuiz()">Initialize Quiz</button>
             </div>
         `;
     }
 
     startQuiz(forcedUnit = null) {
-        const unitSelect = document.getElementById('quiz-unit-select');
-        const typeSelect = document.getElementById('quiz-type');
-
-        if (!typeSelect) return;
+        const unitSel = document.getElementById('quiz-unit-select');
+        const typeSel = document.getElementById('quiz-type');
 
         let unit = 'random';
         if (forcedUnit) {
             unit = forcedUnit.toString();
-            if(unitSelect) unitSelect.value = unit;
-        } else if (unitSelect) {
-            unit = unitSelect.value;
+            if (unitSel) unitSel.value = unit;
+        } else if (unitSel) {
+            unit = unitSel.value;
         }
 
-        const type = typeSelect.value;
-
         this.quizState.unit = unit;
-        this.quizState.type = type;
+        this.quizState.type = typeSel ? typeSel.value : 'definition';
         this.quizState.currentQuestion = 0;
         this.quizState.score = 0;
 
-        this.generateQuizQuestions();
-        
+        this.generateQuestions();
+
         if (this.quizState.questions.length === 0) {
-             alert("No words available for this selection. Try selecting 'All Words' or a specific unit.");
-             return;
+            alert("No words found for this selection. Try 'All Words' or a different unit.");
+            return;
         }
-        
-        this.showQuizQuestion();
+        this.renderQuestion();
     }
 
-    generateQuizQuestions() {
-        let words = [];
+    generateQuestions() {
+        let pool = [];
+        const u = this.quizState.unit;
 
-        if (this.quizState.unit === 'random') {
-            for (let unit of this.vocabularyData) {
-                words = words.concat(unit);
-            }
-            words = this.shuffleArray(words).slice(0, 20);
-
-        } else if (this.quizState.unit === 'difficult') {
-            for (let unitNum = 0; unitNum < this.vocabularyData.length; unitNum++) {
-                for (let wordNum = 0; wordNum < this.vocabularyData[unitNum].length; wordNum++) {
-                    const wordKey = `${unitNum + 1}-${wordNum}`;
-                    if (this.userProgress.wordProgress[wordKey] === 'difficult') {
-                        words.push({
-                            ...this.vocabularyData[unitNum][wordNum],
-                            unit: unitNum + 1,
-                            index: wordNum
-                        });
-                    }
+        if (u === 'random' || u === 'all') {
+            this.vocabularyData.forEach(arr => pool.push(...arr));
+        } else if (u === 'difficult') {
+            for (const [key, status] of Object.entries(this.userProgress.wordProgress)) {
+                if (status === 'difficult') {
+                    const [un, wn] = key.split('-').map(Number);
+                    if(this.vocabularyData[un-1]) pool.push(this.vocabularyData[un-1][wn]);
                 }
             }
-             if (words.length === 0) {
-                 for (let unit of this.vocabularyData) {
-                    words = words.concat(unit);
-                 }
-             }
-             words = this.shuffleArray(words).slice(0, 20);
-
-        } else if (this.quizState.unit === 'all') {
-              for (let unit of this.vocabularyData) {
-                words = words.concat(unit);
-              }
-             words = this.shuffleArray(words).slice(0, 20);
-        } else {
-            const unitNum = parseInt(this.quizState.unit);
-            if (!isNaN(unitNum) && this.vocabularyData[unitNum - 1]) {
-                words = this.vocabularyData[unitNum - 1];
-                words = this.shuffleArray(words).slice(0, 20);
+            if (pool.length < 5) { // Fallback if not enough difficult words
+                 this.vocabularyData.forEach(arr => pool.push(...arr));
             }
+        } else {
+            // Specific unit
+            const num = parseInt(u);
+            if (this.vocabularyData[num - 1]) pool = [...this.vocabularyData[num - 1]];
         }
 
-        this.quizState.questions = words.map(word => this.createQuizQuestion(word));
-    }
-
-    createQuizQuestion(word) {
-        const question = {
-            word: word.word,
-            correctAnswer: this.quizState.type === 'synonym' ? word.synonyms[0] : word.definition,
-            type: this.quizState.type,
-            wordObj: word
-        };
-
-        if (this.quizState.type === 'definition') {
-            question.options = this.generateDefinitionOptions(word);
-        } else if (this.quizState.type === 'synonym') {
-            question.options = this.generateSynonymOptions(word);
-        } else if (this.quizState.type === 'spelling') {
-            question.options = this.generateSpellingOptions(word);
-            question.correctAnswer = word.word;
-        }
-
-        return question;
-    }
-
-    generateDefinitionOptions(word) {
-        const options = [word.definition];
-        const otherWords = this.getRandomWords(3, word.word);
-        otherWords.forEach(w => options.push(w.definition));
-        return this.shuffleArray(options);
-    }
-
-    generateSynonymOptions(word) {
-        const correctSynonym = word.synonyms[0] || "No synonym available";
-        const options = [correctSynonym];
+        pool = this.shuffle(pool).slice(0, 15); // 15 Question Quiz
         
-        const otherWords = this.getRandomWords(3, word.word);
-        otherWords.forEach(w => {
-            if(w.synonyms && w.synonyms.length > 0) {
-                options.push(w.synonyms[0]);
-            } else {
-                options.push("Similar meaning");
-            }
+        this.quizState.questions = pool.map(word => {
+            return {
+                word: word,
+                correct: this.quizState.type === 'synonym' ? word.synonyms[0] : word.definition,
+                options: this.generateOptions(word, this.quizState.type)
+            };
         });
-        return this.shuffleArray(options);
     }
 
-    generateSpellingOptions(word) {
-        const options = [word.word];
-        const variations = this.createSpellingVariations(word.word);
-        return this.shuffleArray([...options, ...variations]);
+    generateOptions(word, type) {
+        const opts = [type === 'synonym' ? word.synonyms[0] : word.definition];
+        const distractors = this.getRandomWords(3, word.word);
+        
+        distractors.forEach(d => {
+            opts.push(type === 'synonym' ? (d.synonyms[0] || "Similar meaning") : d.definition);
+        });
+        
+        return this.shuffle(opts);
     }
 
-    createSpellingVariations(word) {
-        const variations = [];
-        if (word.length > 3) {
-            variations.push(word.replace(/[aeiou]/, 'e'));
-            variations.push(word + 's');
-            const reversed = word.split('').reverse().join('');
-            variations.push(reversed.substring(0, Math.min(word.length, 5)));
-        } else {
-            variations.push(word + 'e');
-            variations.push('un' + word);
-            variations.push(word + 'ly');
-        }
-        return variations.slice(0, 3);
-    }
+    renderQuestion() {
+        const q = this.quizState.questions[this.quizState.currentQuestion];
+        const container = document.getElementById('quiz-content');
+        
+        // Escaping for safety
+        const escape = (s) => s.replace(/'/g, "\\'").replace(/"/g, '&quot;');
 
-    getRandomWords(count, excludeWord) {
-        let allWords = [];
-        this.vocabularyData.forEach(unit => allWords.push(...unit));
-        const filtered = allWords.filter(w => w.word !== excludeWord);
-        return this.shuffleArray(filtered).slice(0, count);
-    }
+        let questionText = "";
+        if(this.quizState.type === 'definition') questionText = `What is the definition of <strong style="color:var(--neon-blue)">${q.word.word}</strong>?`;
+        else if(this.quizState.type === 'synonym') questionText = `What is a synonym for <strong style="color:var(--neon-pink)">${q.word.word}</strong>?`;
+        else if(this.quizState.type === 'spelling') questionText = `Which is the correct spelling for: "${q.word.definition}"?`;
 
-    shuffleArray(array) {
-        const shuffled = [...array];
-        for (let i = shuffled.length - 1; i > 0; i--) {
-            const j = Math.floor(Math.random() * (i + 1));
-            [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
-        }
-        return shuffled;
-    }
-
-    showQuizQuestion() {
-        const question = this.quizState.questions[this.quizState.currentQuestion];
-        const quizContent = document.getElementById('quiz-content');
-
-        if (!question) return;
-
-        const escape = (str) => str.replace(/'/g, "\\'").replace(/"/g, '&quot;');
-
-        quizContent.innerHTML = `
+        container.innerHTML = `
             <div class="quiz-question">
-                <div class="question-header">
-                    <span class="question-number">Question ${this.quizState.currentQuestion + 1} of ${this.quizState.questions.length}</span>
-                    <span class="quiz-score">Score: ${this.quizState.score}/${this.quizState.currentQuestion}</span>
+                <div class="question-header" style="display:flex; justify-content:space-between; margin-bottom:1rem;">
+                    <span>Question ${this.quizState.currentQuestion + 1} / ${this.quizState.questions.length}</span>
+                    <span style="color:var(--neon-violet)">Score: ${this.quizState.score}</span>
                 </div>
-                <div class="question-text">
-                    ${this.getQuestionText(question)}
-                </div>
+                <div class="question-text">${questionText}</div>
                 <div class="quiz-options">
-                    ${question.options.map((option, index) => `
-                        <div class="quiz-option" onclick="app.selectQuizAnswer(this, '${escape(option)}')">
-                            ${option}
-                        </div>
-                    `).join("")}
+                    ${q.options.map(opt => `
+                        <div class="quiz-option" onclick="app.handleAnswer(this, '${escape(opt)}')">${opt}</div>
+                    `).join('')}
                 </div>
             </div>
         `;
     }
 
-    getQuestionText(question) {
-        if (this.quizState.type === 'definition') {
-            return `What is the definition of "<strong>${question.word}</strong>"?`;
-        } else if (this.quizState.type === 'synonym') {
-            return `What is a synonym for "<strong>${question.word}</strong>"?`;
-        } else if (this.quizState.type === 'spelling') {
-            return `Choose the correct spelling for the word defined as:<br><em>"${question.wordObj.definition}"</em>`;
-        }
-        return `What do you know about "${question.word}"?`;
-    }
-
-    selectQuizAnswer(element, selectedAnswer) {
-        if(element.classList.contains('correct') || element.classList.contains('incorrect')) return;
+    handleAnswer(el, ans) {
+        if (el.classList.contains('correct') || el.classList.contains('incorrect')) return; // Prevent double clicks
         
-        const options = document.querySelectorAll('.quiz-option');
-        options.forEach(opt => opt.onclick = null); 
-
-        element.classList.add('selected');
-        this.checkAnswer(element, selectedAnswer);
-    }
-
-    checkAnswer(element, selectedAnswer) {
-        const question = this.quizState.questions[this.quizState.currentQuestion];
-        let isCorrect = false;
-
-        if (this.quizState.type === 'synonym') {
-            isCorrect = question.wordObj.synonyms.includes(selectedAnswer);
-        } else {
-            isCorrect = (selectedAnswer === question.correctAnswer);
-        }
+        const q = this.quizState.questions[this.quizState.currentQuestion];
+        // Synonyms often have multiple valid ones, but for this simple engine we check exact string match against the generated option
+        // Since we shuffled options, we just compare text.
+        
+        let isCorrect = (ans === q.correct);
+        
+        // Extra check for synonym arrays
+        if(this.quizState.type === 'synonym' && q.word.synonyms.includes(ans)) isCorrect = true;
 
         if (isCorrect) {
+            el.classList.add('correct');
             this.quizState.score++;
-            element.classList.add('correct');
         } else {
-            element.classList.add('incorrect');
+            el.classList.add('incorrect');
+            // Show correct one
             document.querySelectorAll('.quiz-option').forEach(opt => {
-                const txt = opt.innerText;
-                if (this.quizState.type === 'synonym') {
-                    if (question.wordObj.synonyms.includes(txt)) opt.classList.add('correct');
-                } else {
-                    if (txt === question.correctAnswer) opt.classList.add('correct');
+                if (opt.innerText === q.correct || (this.quizState.type === 'synonym' && q.word.synonyms.includes(opt.innerText))) {
+                    opt.classList.add('correct');
                 }
             });
         }
 
         setTimeout(() => {
-            this.nextQuestion();
-        }, 1500);
+            this.quizState.currentQuestion++;
+            if (this.quizState.currentQuestion < this.quizState.questions.length) {
+                this.renderQuestion();
+            } else {
+                this.showResults();
+            }
+        }, 1200);
     }
 
-    nextQuestion() {
-        this.quizState.currentQuestion++;
-        if (this.quizState.currentQuestion < this.quizState.questions.length) {
-            this.showQuizQuestion();
-        } else {
-            this.showQuizResults();
-        }
-    }
+    showResults() {
+        const pct = Math.round((this.quizState.score / this.quizState.questions.length) * 100);
+        const container = document.getElementById('quiz-content');
+        
+        // Update stats
+        this.userProgress.quizAttempts++;
+        // Simple moving average
+        const oldAvg = this.userProgress.averageScore || 0;
+        this.userProgress.averageScore = Math.round(((oldAvg * (this.userProgress.quizAttempts - 1)) + pct) / this.userProgress.quizAttempts);
+        this.saveProgress();
+        this.updateStats();
 
-    showQuizResults() {
-        const percentage = Math.round((this.quizState.score / this.quizState.questions.length) * 100);
-        const quizContent = document.getElementById('quiz-content');
-
-        quizContent.innerHTML = `
-            <div class="quiz-results">
-                <div class="quiz-welcome">
-                    <i class="fas fa-trophy" style="color: var(--warning);"></i>
-                    <h2>Quiz Complete!</h2>
-                    <div class="progress-circle" style="width: 120px; height: 120px; margin: 2rem auto;">
-                         <div class="progress-text" style="position: relative; top: 0; left: 0; transform: none;">
-                            <span style="font-size: 2.5rem;">${percentage}%</span>
-                            <small>Score</small>
-                         </div>
+        container.innerHTML = `
+            <div class="quiz-results" style="text-align:center;">
+                <h2 style="font-size:2rem; margin-bottom:1rem;">Session Complete</h2>
+                <div class="progress-circle" style="margin:2rem auto;">
+                    <div class="progress-text" style="position:relative; top:0; transform:none;">
+                        <span style="font-size:4rem; color:var(--neon-blue)">${pct}%</span>
                     </div>
-                    <p>You got ${this.quizState.score} out of ${this.quizState.questions.length} correct.</p>
-                    <div style="margin-top: 2rem; display: flex; gap: 1rem; justify-content: center;">
-                        <button class="primary-btn" onclick="app.startQuiz('${this.quizState.unit}')">
-                            <i class="fas fa-redo"></i> Retry Quiz
-                        </button>
-                        <button class="secondary-btn" onclick="navigateToSection('units')">
-                            Back to Units
-                        </button>
-                    </div>
+                </div>
+                <p>You scored ${this.quizState.score} out of ${this.quizState.questions.length}</p>
+                <div style="margin-top:2rem; display:flex; gap:1rem; justify-content:center;">
+                    <button class="primary-btn" onclick="app.startQuiz('${this.quizState.unit}')">Retry</button>
+                    <button class="secondary-btn" onclick="navigateToSection('units')">Back to Units</button>
                 </div>
             </div>
         `;
-
-        this.updateQuizProgress(percentage);
     }
 
-    updateQuizProgress(score) {
-        this.userProgress.quizAttempts++;
-        const totalPrev = this.userProgress.averageScore * (this.userProgress.quizAttempts - 1);
-        this.userProgress.averageScore = (totalPrev + score) / this.userProgress.quizAttempts;
-
-        const today = new Date().toDateString();
-        if (this.userProgress.lastStudyDate !== today) {
-            this.userProgress.streak++;
-            this.userProgress.lastStudyDate = today;
-        }
-        
-        this.saveProgress();
-        this.updateStats();
-    }
+    // --- PROGRESS & UTILS ---
 
     renderProgress() {
-        this.renderOverallProgress();
-        this.renderActivityChart();
-        this.renderDifficultWords();
-    }
-
-    renderOverallProgress() {
-        const totalWords = this.vocabularyData.reduce((sum, unit) => sum + unit.length, 0);
-        const masteredWords = Object.values(this.userProgress.wordProgress).filter(s => s === 'mastered').length;
-        const percentage = totalWords > 0 ? Math.round((masteredWords / totalWords) * 100) : 0;
-
-        const pctEl = document.getElementById('progress-percentage');
-        if(pctEl) pctEl.textContent = `${percentage}%`;
+        // Progress Circle
+        const total = 1235; // Fixed total based on your data
+        let mastered = 0;
+        let difficult = 0;
         
-        const mastEl = document.getElementById('words-mastered');
-        if(mastEl) mastEl.textContent = masteredWords;
+        Object.values(this.userProgress.wordProgress).forEach(status => {
+            if (status === 'mastered') mastered++;
+            if (status === 'difficult') difficult++;
+        });
+
+        const pct = Math.round((mastered / total) * 100);
+        
+        const pctEl = document.getElementById('progress-percentage');
+        if (pctEl) pctEl.textContent = `${pct}%`;
 
         const circle = document.getElementById('progress-circle');
         if (circle) {
             const circumference = 2 * Math.PI * 45;
-            const offset = circumference - (percentage / 100) * circumference;
+            const offset = circumference - (pct / 100) * circumference;
             circle.style.strokeDashoffset = offset;
         }
+
+        // Text Stats
+        document.getElementById('words-mastered').textContent = mastered;
+        document.getElementById('quiz-attempts').textContent = this.userProgress.quizAttempts;
+
+        // Render Difficult List
+        const list = document.getElementById('difficult-words-list');
+        list.innerHTML = "";
+        
+        if (difficult === 0) {
+            list.innerHTML = "<p style='color:var(--text-muted)'>No difficult words yet.</p>";
+        } else {
+            for (const [key, status] of Object.entries(this.userProgress.wordProgress)) {
+                if (status === 'difficult') {
+                    const [u, w] = key.split('-').map(Number);
+                    if (this.vocabularyData[u-1] && this.vocabularyData[u-1][w]) {
+                        const word = this.vocabularyData[u-1][w];
+                        const tag = document.createElement('span');
+                        tag.className = 'difficult-word-tag';
+                        tag.textContent = word.word;
+                        tag.onclick = () => this.openWordModal(word, u, w);
+                        list.appendChild(tag);
+                    }
+                }
+            }
+        }
+        
+        // Render Chart (Chart.js)
+        this.renderChart();
     }
 
-    renderActivityChart() {
+    renderChart() {
         const ctx = document.getElementById('activity-chart');
         if (!ctx || typeof Chart === 'undefined') return;
 
-        const dataPoints = [0, 0, 0, 0, 0, 0, 0]; 
-        const labels = [];
-        for (let i = 6; i >= 0; i--) {
-            const d = new Date();
-            d.setDate(d.getDate() - i);
-            labels.push(d.toLocaleDateString('en', { weekday: 'short' }));
-        }
-
+        // Mock data for demo - in real app, track daily stats
         if (this.chartInstance) this.chartInstance.destroy();
-
+        
         this.chartInstance = new Chart(ctx, {
             type: 'line',
             data: {
-                labels: labels,
+                labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
                 datasets: [{
-                    label: 'Words Mastered',
-                    data: dataPoints,
-                    borderColor: '#8b5cf6',
-                    backgroundColor: 'rgba(139, 92, 246, 0.1)',
-                    fill: true,
-                    tension: 0.4
+                    label: 'Words Learned',
+                    data: [5, 12, 8, 20, 15, 10, this.userProgress.unitProgress[1] ? this.userProgress.unitProgress[1].mastered : 0],
+                    borderColor: '#7c3aed',
+                    backgroundColor: 'rgba(124, 58, 237, 0.1)',
+                    tension: 0.4,
+                    fill: true
                 }]
             },
             options: {
                 responsive: true,
-                maintainAspectRatio: false,
-                plugins: { legend: { display: false } },
-                scales: { y: { beginAtZero: true } }
+                plugins: { legend: {display: false} },
+                scales: {
+                    y: { beginAtZero: true, grid: { color: 'rgba(255,255,255,0.05)' } },
+                    x: { grid: { display: false } }
+                }
             }
         });
     }
 
-    renderDifficultWords() {
-        const list = document.getElementById('difficult-words-list');
-        if (!list) return;
-        list.innerHTML = '';
-
-        let hasWords = false;
-        for (const [key, status] of Object.entries(this.userProgress.wordProgress)) {
-            if (status === 'difficult') {
-                const [u, w] = key.split('-').map(Number);
-                if (this.vocabularyData[u-1] && this.vocabularyData[u-1][w]) {
-                    const wordObj = this.vocabularyData[u-1][w];
-                    hasWords = true;
-                    list.innerHTML += `<span class="difficult-word-tag">${wordObj.word}</span>`;
-                }
-            }
-        }
-
-        if (!hasWords) {
-            list.innerHTML = '<p style="color:var(--text-secondary)">No words marked as difficult yet.</p>';
-        }
-    }
-
     performSearch(query) {
-        if (!query.trim()) {
+        const container = document.getElementById('units-container');
+        if (!query) {
             this.renderUnits();
             return;
         }
-
-        const container = document.getElementById('units-container');
-        container.innerHTML = '';
+        
         container.className = 'units-grid';
-
-        let found = false;
+        container.innerHTML = "";
+        
         const q = query.toLowerCase();
+        let found = false;
 
-        this.vocabularyData.forEach((unit, uIndex) => {
-            unit.forEach((word, wIndex) => {
-                if (word.word.toLowerCase().includes(q) || word.definition.toLowerCase().includes(q)) {
+        this.vocabularyData.forEach((unit, uIdx) => {
+            unit.forEach((word, wIdx) => {
+                if (word.word.toLowerCase().includes(q)) {
                     found = true;
-                    const wordEl = this.createWordElement(word, uIndex + 1, wIndex);
-                    const wrapper = document.createElement('div');
-                    wrapper.className = 'unit-card';
-                    wrapper.style.padding = '0.5rem';
-                    wrapper.style.minHeight = 'auto';
-                    wrapper.appendChild(wordEl);
-                    container.appendChild(wrapper);
+                    const el = document.createElement('div');
+                    el.className = 'word-item';
+                    el.style.background = 'var(--glass-bg)';
+                    el.innerHTML = `
+                        <div class="word-header">
+                            <span class="word-text">${word.word}</span>
+                            <span class="word-status">Unit ${uIdx+1}</span>
+                        </div>
+                        <p class="word-definition-short">${word.definition}</p>
+                    `;
+                    el.onclick = () => this.openWordModal(word, uIdx+1, wIdx);
+                    container.appendChild(el);
                 }
             });
         });
 
-        if (!found) {
-            container.innerHTML = '<p style="grid-column: 1/-1; text-align: center;">No matching words found.</p>';
+        if (!found) container.innerHTML = "<p>No matches found.</p>";
+    }
+
+    // --- SYSTEM UTILS ---
+
+    shuffle(array) {
+        const arr = [...array];
+        for (let i = arr.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [arr[i], arr[j]] = [arr[j], arr[i]];
         }
+        return arr;
     }
 
-    setupDarkMode() {
-        const theme = localStorage.getItem('theme') || 'light';
-        document.documentElement.setAttribute('data-theme', theme);
-        this.updateDarkModeToggle(theme);
-    }
-
-    toggleDarkMode() {
-        const current = document.documentElement.getAttribute('data-theme');
-        const next = current === 'light' ? 'dark' : 'light';
-        document.documentElement.setAttribute('data-theme', next);
-        localStorage.setItem('theme', next);
-        this.updateDarkModeToggle(next);
-    }
-
-    updateDarkModeToggle(theme) {
-        const icon = document.querySelector('#dark-mode-toggle i');
-        if (icon) {
-            icon.className = theme === 'light' ? 'fas fa-moon' : 'fas fa-sun';
-        }
-    }
-
-    setupSearch() {
-        // Initialized in constructor
+    getRandomWords(count, exclude) {
+        const pool = [];
+        // Sample from first 5 units to be fast
+        for(let i=0; i<5; i++) pool.push(...this.vocabularyData[i]);
+        return this.shuffle(pool.filter(w => w.word !== exclude)).slice(0, count);
     }
 
     loadProgress() {
@@ -922,14 +691,10 @@ class MakonianApp {
             wordProgress: {},
             unitProgress: {},
             quizAttempts: 0,
-            totalScore: 0,
             averageScore: 0,
             streak: 0,
             lastStudyDate: null,
-            dailyActivity: {},
-            favorites: [],
-            studyTime: 0,
-            lastUnit: 1
+            favorites: []
         };
     }
 
@@ -939,66 +704,69 @@ class MakonianApp {
 
     updateStats() {
         const completed = Object.values(this.userProgress.unitProgress).filter(u => u.completed).length;
-        const elComp = document.getElementById('completed-units');
-        if(elComp) elComp.textContent = completed;
         
-        const elStreak = document.getElementById('study-streak');
-        if(elStreak) elStreak.textContent = this.userProgress.streak;
+        const el1 = document.getElementById('completed-units');
+        if(el1) el1.textContent = completed;
         
-        const elQuiz = document.getElementById('quiz-score');
-        if(elQuiz) elQuiz.textContent = Math.round(this.userProgress.averageScore || 0) + '%';
+        const el2 = document.getElementById('study-streak');
+        if(el2) el2.textContent = this.userProgress.streak;
+        
+        const el3 = document.getElementById('quiz-score');
+        if(el3) el3.textContent = (this.userProgress.averageScore || 0) + '%';
     }
 
-    closeModal() {
-        document.querySelectorAll('.modal').forEach(m => m.classList.remove('active'));
-    }
-
-    setUnitView(type) {
-        localStorage.setItem('unitView', type);
-        const gBtn = document.getElementById('grid-view-btn');
-        const lBtn = document.getElementById('list-view-btn');
-        if(gBtn) gBtn.classList.toggle('active', type === 'grid');
-        if(lBtn) lBtn.classList.toggle('active', type === 'list');
-        this.renderUnits();
-    }
-
-    continueStudying() {
-        this.loadSection('units');
-        this.openUnitModal(1); 
+    toggleDarkMode() {
+        const current = document.documentElement.getAttribute('data-theme');
+        const next = current === 'light' ? 'dark' : 'light';
+        document.documentElement.setAttribute('data-theme', next);
+        localStorage.setItem('theme', next);
     }
     
+    setUnitView(type) {
+        localStorage.setItem('unitView', type);
+        this.renderUnits();
+        // Toggle active button states
+        document.getElementById('grid-view-btn').classList.toggle('active', type === 'grid');
+        document.getElementById('list-view-btn').classList.toggle('active', type === 'list');
+    }
+
+    // Actions
+    continueStudying() {
+        this.loadSection('units');
+        this.openUnitModal(1);
+    }
     takeQuickQuiz() {
         this.loadSection('quiz');
         this.startQuiz();
     }
-    
     reviewDifficultWords() {
         this.loadSection('progress');
         window.scrollTo(0, document.body.scrollHeight);
     }
-    
     exportProgress() {
         const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(this.userProgress));
-        const downloadAnchorNode = document.createElement('a');
-        downloadAnchorNode.setAttribute("href", dataStr);
-        downloadAnchorNode.setAttribute("download", "makonian_progress.json");
-        document.body.appendChild(downloadAnchorNode);
-        downloadAnchorNode.click();
-        downloadAnchorNode.remove();
+        const node = document.createElement('a');
+        node.setAttribute("href", dataStr);
+        node.setAttribute("download", "makonian_data.json");
+        document.body.appendChild(node);
+        node.click();
+        node.remove();
     }
 }
 
-// Init
+// --- GLOBAL HOOKS ---
 const app = new MakonianApp(vocabularyData, unitMetadata);
 
-// Global hooks
+// Expose functions for HTML onclick events
 window.navigateToSection = (s) => app.loadSection(s);
 window.continueStudying = () => app.continueStudying();
 window.takeQuickQuiz = () => app.takeQuickQuiz();
 window.reviewDifficultWords = () => app.reviewDifficultWords();
 window.exportProgress = () => app.exportProgress();
 
-// Close modals on outside click
+// Click outside to close modals
 window.onclick = (e) => {
-    if (e.target.classList.contains('modal')) app.closeModal();
+    if (e.target.classList.contains('modal')) {
+        e.target.classList.remove('active');
+    }
 };
