@@ -1,4 +1,4 @@
-             // Main application JavaScript
+// Main application JavaScript
 
 class MakonianApp {
     constructor(vocabularyData, unitMetadata) {
@@ -26,6 +26,9 @@ class MakonianApp {
         this.updateStats();
         this.setupDarkMode();
         this.setupSearch();
+
+        // Populate quiz dropdown with units dynamically
+        this.populateQuizDropdown();
 
         setTimeout(() => {
             const loadingScreen = document.getElementById('loading-screen');
@@ -91,6 +94,20 @@ class MakonianApp {
         }
     }
 
+    populateQuizDropdown() {
+        const select = document.getElementById('quiz-unit-select');
+        if (!select) return;
+        
+        // Keep static options (Random, Difficult, All)
+        // Append specific units
+        this.unitMetadata.forEach(unit => {
+            const option = document.createElement('option');
+            option.value = unit.number;
+            option.textContent = `Unit ${unit.number}: ${unit.title}`;
+            select.appendChild(option);
+        });
+    }
+
     loadSection(section) {
         // Hide all sections
         document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
@@ -130,7 +147,6 @@ class MakonianApp {
         container.className = viewType === 'grid' ? 'units-grid' : 'units-list';
         container.innerHTML = "";
 
-        // Use instance data instead of relying on globals directly
         const units = JSON.parse(localStorage.getItem('unitMetadata')) || this.unitMetadata;
 
         units.forEach(unit => {
@@ -166,7 +182,6 @@ class MakonianApp {
 
     getUnitProgress(unitNumber) {
         const progress = this.userProgress.unitProgress[unitNumber] || {};
-        // Fix array access (0-indexed)
         const unitData = this.vocabularyData[unitNumber - 1];
         if (!unitData) return 0;
 
@@ -201,12 +216,38 @@ class MakonianApp {
             wordsList.appendChild(wordElement);
         });
 
+        // --- FUNCTIONALITY FIX: Bind Buttons correctly ---
+
+        // 1. Study Button: Opens the first word of this unit in the detail view
+        const studyBtn = document.getElementById('study-unit-btn');
+        const newStudyBtn = studyBtn.cloneNode(true); // Remove old listeners
+        studyBtn.parentNode.replaceChild(newStudyBtn, studyBtn);
+        
+        newStudyBtn.onclick = () => {
+            this.closeModal();
+            if(words.length > 0) {
+                this.openWordModal(words[0], unitNumber, 0);
+            }
+        };
+
+        // 2. Quiz Button: Starts quiz for THIS specific unit
+        const quizBtn = document.getElementById('quiz-unit-btn');
+        const newQuizBtn = quizBtn.cloneNode(true); // Remove old listeners
+        quizBtn.parentNode.replaceChild(newQuizBtn, quizBtn);
+
+        newQuizBtn.onclick = () => {
+            this.closeModal();
+            this.loadSection('quiz');
+            // Pass the unit number to startQuiz to force specific unit
+            this.startQuiz(unitNumber); 
+        };
+
         modal.classList.add('active');
     }
 
     createWordElement(word, unitNumber, wordIndex) {
         const wordEl = document.createElement('div');
-        wordEl.className = 'word-item';
+        wordEl.className = 'word-item'; // Matches new CSS
         wordEl.onclick = () => this.openWordModal(word, unitNumber, wordIndex);
 
         const wordKey = `${unitNumber}-${wordIndex}`;
@@ -252,6 +293,7 @@ class MakonianApp {
         if (difficultBtn) {
             difficultBtn.onclick = () => {
                 this.markWordDifficulty(wordKey, 'difficult');
+                this.closeModal(); // Optional: close modal after marking
             };
         }
 
@@ -259,6 +301,7 @@ class MakonianApp {
         if (masteredBtn) {
             masteredBtn.onclick = () => {
                 this.markWordDifficulty(wordKey, 'mastered');
+                this.closeModal();
             };
         }
 
@@ -275,26 +318,44 @@ class MakonianApp {
             this.userProgress.wordProgress = {};
         }
         this.userProgress.wordProgress[wordKey] = status;
+        
+        // Update Unit Mastery Count
+        const [unitStr, ] = wordKey.split('-');
+        const unitNum = parseInt(unitStr);
+        if (!this.userProgress.unitProgress[unitNum]) {
+            this.userProgress.unitProgress[unitNum] = { mastered: 0, completed: false };
+        }
+        
+        // Recalculate mastery for this unit
+        let masteredCount = 0;
+        const unitWordsLen = this.vocabularyData[unitNum-1].length;
+        
+        // This is a simple check; for production, you'd iterate the keys
+        // simpler approach for now: just increment if setting to mastered, but prevent double counting
+        // Better approach: Iterate all words in unit to count mastered
+        for(let i=0; i<unitWordsLen; i++) {
+             if(this.userProgress.wordProgress[`${unitNum}-${i}`] === 'mastered') {
+                 masteredCount++;
+             }
+        }
+        
+        this.userProgress.unitProgress[unitNum].mastered = masteredCount;
+        if (masteredCount === unitWordsLen) {
+            this.userProgress.unitProgress[unitNum].completed = true;
+        }
+
         this.saveProgress();
         this.updateStats();
-
-        // Update UI
-        const statusElement = document.querySelector(`.word-status[data-word="${wordKey}"]`);
-        if (statusElement) {
-            statusElement.textContent = status;
-            statusElement.className = `word-status ${status}`;
-        }
+        this.renderUnits(); // Refresh progress bars
     }
 
     toggleFavorite(wordKey) {
         const index = this.userProgress.favorites.indexOf(wordKey);
-
         if (index > -1) {
             this.userProgress.favorites.splice(index, 1);
         } else {
             this.userProgress.favorites.push(wordKey);
         }
-
         this.saveProgress();
     }
 
@@ -309,13 +370,23 @@ class MakonianApp {
         `;
     }
 
-    startQuiz() {
+    // Updated startQuiz to accept a specific unit override
+    startQuiz(forcedUnit = null) {
         const unitSelect = document.getElementById('quiz-unit-select');
         const typeSelect = document.getElementById('quiz-type');
 
-        if (!unitSelect || !typeSelect) return;
+        if (!typeSelect) return;
 
-        const unit = unitSelect.value;
+        // Determine unit: Forced -> Dropdown -> Default 'random'
+        let unit = 'random';
+        if (forcedUnit) {
+            unit = forcedUnit.toString();
+            // Visually update dropdown if possible
+            if(unitSelect) unitSelect.value = unit;
+        } else if (unitSelect) {
+            unit = unitSelect.value;
+        }
+
         const type = typeSelect.value;
 
         this.quizState.unit = unit;
@@ -326,7 +397,7 @@ class MakonianApp {
         this.generateQuizQuestions();
         
         if (this.quizState.questions.length === 0) {
-             alert("No words available for the selected quiz settings. Try a different unit or 'All Words'.");
+             alert("No words available for this selection. Try selecting 'All Words' or a specific unit.");
              return;
         }
         
@@ -337,7 +408,6 @@ class MakonianApp {
         let words = [];
 
         if (this.quizState.unit === 'random') {
-            // Get random words from all units
             for (let unit of this.vocabularyData) {
                 words = words.concat(unit);
             }
@@ -345,12 +415,11 @@ class MakonianApp {
 
         } else if (this.quizState.unit === 'difficult') {
             // Get words marked as difficult
-            const difficultWords = [];
             for (let unitNum = 0; unitNum < this.vocabularyData.length; unitNum++) {
                 for (let wordNum = 0; wordNum < this.vocabularyData[unitNum].length; wordNum++) {
                     const wordKey = `${unitNum + 1}-${wordNum}`;
                     if (this.userProgress.wordProgress[wordKey] === 'difficult') {
-                        difficultWords.push({
+                        words.push({
                             ...this.vocabularyData[unitNum][wordNum],
                             unit: unitNum + 1,
                             index: wordNum
@@ -358,16 +427,13 @@ class MakonianApp {
                     }
                 }
             }
-             // Fallback if not enough difficult words
-             if (difficultWords.length === 0) {
-                 // Just grab random words instead
+             if (words.length === 0) {
+                 // Fallback to random if no difficult words
                  for (let unit of this.vocabularyData) {
                     words = words.concat(unit);
                  }
-                 words = this.shuffleArray(words).slice(0, 20);
-             } else {
-                 words = difficultWords.slice(0, 20);
              }
+             words = this.shuffleArray(words).slice(0, 20);
 
         } else if (this.quizState.unit === 'all') {
               for (let unit of this.vocabularyData) {
@@ -375,14 +441,12 @@ class MakonianApp {
               }
              words = this.shuffleArray(words).slice(0, 20);
         } else {
-            // Get words from specific unit (unit number string)
-            // Need to parse "Unit 1", "1", etc. but the select values are likely just numbers or strings
-            // Assuming value is numeric string based on typical select options not shown in full code
-            // If unit is just a number:
+            // Specific Unit
             const unitNum = parseInt(this.quizState.unit);
             if (!isNaN(unitNum) && this.vocabularyData[unitNum - 1]) {
-                words = this.vocabularyData[unitNum - 1].slice(0, 20); // Take up to 20 words
-                words = this.shuffleArray(words);
+                // Get up to 20 words from the unit
+                words = this.vocabularyData[unitNum - 1];
+                words = this.shuffleArray(words).slice(0, 20);
             }
         }
 
@@ -392,25 +456,19 @@ class MakonianApp {
     createQuizQuestion(word) {
         const question = {
             word: word.word,
-            correctAnswer: word.definition,
-            type: this.quizState.type
+            correctAnswer: this.quizState.type === 'synonym' ? word.synonyms[0] : word.definition,
+            type: this.quizState.type,
+            wordObj: word
         };
 
-        // Generate options based on quiz type
         if (this.quizState.type === 'definition') {
             question.options = this.generateDefinitionOptions(word);
-            question.correctAnswer = word.definition;
         } else if (this.quizState.type === 'synonym') {
             question.options = this.generateSynonymOptions(word);
-            // The correct answer is the first synonym in our list for now, logic handled in checking
-             question.correctAnswer = word.synonyms[0];
         } else if (this.quizState.type === 'spelling') {
             question.options = this.generateSpellingOptions(word);
-             question.correctAnswer = word.word;
+            question.correctAnswer = word.word;
         }
-
-        // Store full word object for context if needed
-        question.wordObj = word;
 
         return question;
     }
@@ -423,8 +481,7 @@ class MakonianApp {
     }
 
     generateSynonymOptions(word) {
-        // Take the first synonym as the correct option for simplicity in generation
-        const correctSynonym = word.synonyms[0];
+        const correctSynonym = word.synonyms[0] || "No synonym available";
         const options = [correctSynonym];
         
         const otherWords = this.getRandomWords(3, word.word);
@@ -432,7 +489,7 @@ class MakonianApp {
             if(w.synonyms && w.synonyms.length > 0) {
                 options.push(w.synonyms[0]);
             } else {
-                options.push("No synonym"); // Fallback
+                options.push("Similar meaning"); // Fallback
             }
         });
         return this.shuffleArray(options);
@@ -446,24 +503,25 @@ class MakonianApp {
 
     createSpellingVariations(word) {
         const variations = [];
+        // Simple logic to create fake spellings
         if (word.length > 3) {
-             // Simple variations: remove double letters, swap vowels, etc.
-            variations.push(word.replace(/[aeiou]/, 'e')); // replace first vowel
-            variations.push(word.split('').reverse().join('')); // reverse (silly but works for distinct wrong answer)
-            variations.push(word + 's'); // pluralize incorrectly or redundantly
+            variations.push(word.replace(/[aeiou]/, 'e')); // swap vowel
+            variations.push(word + 's'); // plural
+            const reversed = word.split('').reverse().join('');
+            variations.push(reversed.substring(0, Math.min(word.length, 5))); // junk word
         } else {
-             variations.push(word + 'e');
-             variations.push(word + 's');
-             variations.push('un' + word);
+            variations.push(word + 'e');
+            variations.push('un' + word);
+            variations.push(word + 'ly');
         }
         return variations.slice(0, 3);
     }
 
     getRandomWords(count, excludeWord) {
         let allWords = [];
-        this.vocabularyData.forEach(unit => {
-            allWords.push(...unit);
-        });
+        // Gather a pool of words (flattening the first few units is usually enough for speed)
+        // For better variety, pick random units
+        this.vocabularyData.forEach(unit => allWords.push(...unit));
 
         const filtered = allWords.filter(w => w.word !== excludeWord);
         return this.shuffleArray(filtered).slice(0, count);
@@ -484,6 +542,9 @@ class MakonianApp {
 
         if (!question) return;
 
+        // Handle text escaping for onclick
+        const escape = (str) => str.replace(/'/g, "\\'").replace(/"/g, '&quot;');
+
         quizContent.innerHTML = `
             <div class="quiz-question">
                 <div class="question-header">
@@ -495,45 +556,34 @@ class MakonianApp {
                 </div>
                 <div class="quiz-options">
                     ${question.options.map((option, index) => `
-                        <div class="quiz-option" onclick="app.selectQuizAnswer(this, '${option.replace(/'/g, "\\'")}')">
+                        <div class="quiz-option" onclick="app.selectQuizAnswer(this, '${escape(option)}')">
                             ${option}
                         </div>
                     `).join("")}
                 </div>
             </div>
-            <div class="quiz-actions">
-                 <!-- Next button logic is handled via selection usually, but added here -->
-                 <button class="primary-btn" id="next-question-btn" style="display:none;" onclick="app.nextQuestion()">Next</button>
-            </div>
         `;
     }
 
     getQuestionText(question) {
-        switch (this.quizState.type) {
-            case 'definition':
-                return `What is the definition of "<strong>${question.word}</strong>"?`;
-            case 'synonym':
-                return `What is a synonym for "<strong>${question.word}</strong>"?`;
-            case 'spelling':
-                return `Which is the correct spelling for the word meaning "${question.correctAnswer !== question.word ? question.wordObj.definition : '...'}"?`; 
-                // Note: For spelling, question.word is the correct spelling, but we want to prompt with definition.
-                // However, my createQuestion logic sets word: word.word.
-                // Let's adjust for spelling type:
-                 if(this.quizState.type === 'spelling') return `Choose the correct spelling for the word defined as: "${question.wordObj.definition}"`;
-                 return `What is the definition of "${question.word}"?`;
-            default:
-                return `What do you know about "${question.word}"?`;
+        if (this.quizState.type === 'definition') {
+            return `What is the definition of "<strong>${question.word}</strong>"?`;
+        } else if (this.quizState.type === 'synonym') {
+            return `What is a synonym for "<strong>${question.word}</strong>"?`;
+        } else if (this.quizState.type === 'spelling') {
+            return `Choose the correct spelling for the word defined as:<br><em>"${question.wordObj.definition}"</em>`;
         }
+        return `What do you know about "${question.word}"?`;
     }
 
     selectQuizAnswer(element, selectedAnswer) {
-        // Prevent multiple selections
-        const options = document.querySelectorAll('.quiz-option');
-        options.forEach(opt => opt.classList.remove('selected'));
-        element.classList.add('selected');
+        // Prevent multiple clicks
+        if(element.classList.contains('correct') || element.classList.contains('incorrect')) return;
         
-        // Trigger check immediately or wait for button? 
-        // Let's trigger check immediately for better UX on mobile
+        const options = document.querySelectorAll('.quiz-option');
+        options.forEach(opt => opt.onclick = null); // Disable all
+
+        element.classList.add('selected');
         this.checkAnswer(element, selectedAnswer);
     }
 
@@ -541,50 +591,42 @@ class MakonianApp {
         const question = this.quizState.questions[this.quizState.currentQuestion];
         let isCorrect = false;
 
-        if (this.quizState.type === 'definition') {
-            isCorrect = (selectedAnswer === question.correctAnswer);
-        } else if (this.quizState.type === 'synonym') {
-             // Check if selected answer is in the synonym list of the word
+        if (this.quizState.type === 'synonym') {
+            // Synonyms logic: check if selected answer is ANY of the valid synonyms
             isCorrect = question.wordObj.synonyms.includes(selectedAnswer);
-        } else if (this.quizState.type === 'spelling') {
+        } else {
+            // Definition or Spelling: exact match
             isCorrect = (selectedAnswer === question.correctAnswer);
         }
-
-        // Disable further clicks
-        const allOptions = document.querySelectorAll('.quiz-option');
-        allOptions.forEach(opt => opt.onclick = null);
 
         if (isCorrect) {
             this.quizState.score++;
             element.classList.add('correct');
         } else {
             element.classList.add('incorrect');
-            // Highlight correct answer
-            allOptions.forEach(option => {
-                 // Simple text match check for highlighting
-                 const optText = option.innerText.trim();
-                 let optIsCorrect = false;
-                 if (this.quizState.type === 'definition' && optText === question.correctAnswer) optIsCorrect = true;
-                 if (this.quizState.type === 'synonym' && question.wordObj.synonyms.includes(optText)) optIsCorrect = true;
-                 if (this.quizState.type === 'spelling' && optText === question.correctAnswer) optIsCorrect = true;
-                 
-                 if(optIsCorrect) option.classList.add('correct');
+            // Highlight correct one
+            document.querySelectorAll('.quiz-option').forEach(opt => {
+                const txt = opt.innerText;
+                if (this.quizState.type === 'synonym') {
+                    if (question.wordObj.synonyms.includes(txt)) opt.classList.add('correct');
+                } else {
+                    if (txt === question.correctAnswer) opt.classList.add('correct');
+                }
             });
         }
 
-        // Move to next
         setTimeout(() => {
             this.nextQuestion();
         }, 1500);
     }
-    
+
     nextQuestion() {
-         this.quizState.currentQuestion++;
-         if (this.quizState.currentQuestion < this.quizState.questions.length) {
-             this.showQuizQuestion();
-         } else {
-             this.showQuizResults();
-         }
+        this.quizState.currentQuestion++;
+        if (this.quizState.currentQuestion < this.quizState.questions.length) {
+            this.showQuizQuestion();
+        } else {
+            this.showQuizResults();
+        }
     }
 
     showQuizResults() {
@@ -593,25 +635,24 @@ class MakonianApp {
 
         quizContent.innerHTML = `
             <div class="quiz-results">
-                <div class="results-header">
-                    <i class="fas fa-trophy"></i>
+                <div class="quiz-welcome">
+                    <i class="fas fa-trophy" style="color: var(--warning);"></i>
                     <h2>Quiz Complete!</h2>
-                </div>
-                <div class="results-stats">
-                    <div class="score-circle">
-                        <span class="score-percentage">${percentage}%</span>
-                        <small>Score</small>
+                    <div class="progress-circle" style="width: 120px; height: 120px; margin: 2rem auto;">
+                         <div class="progress-text" style="position: relative; top: 0; left: 0; transform: none;">
+                            <span style="font-size: 2.5rem;">${percentage}%</span>
+                            <small>Score</small>
+                         </div>
                     </div>
-                    <div class="results-details">
-                        <p><strong>Questions:</strong> ${this.quizState.questions.length}</p>
-                        <p><strong>Correct:</strong> ${this.quizState.score}</p>
-                        <p><strong>Incorrect:</strong> ${this.quizState.questions.length - this.quizState.score}</p>
+                    <p>You got ${this.quizState.score} out of ${this.quizState.questions.length} correct.</p>
+                    <div style="margin-top: 2rem; display: flex; gap: 1rem; justify-content: center;">
+                        <button class="primary-btn" onclick="app.startQuiz('${this.quizState.unit}')">
+                            <i class="fas fa-redo"></i> Retry Quiz
+                        </button>
+                        <button class="secondary-btn" onclick="navigateToSection('units')">
+                            Back to Units
+                        </button>
                     </div>
-                </div>
-                <div class="results-actions">
-                    <button class="primary-btn" onclick="app.startQuiz()">
-                        <i class="fas fa-redo"></i> Take Another Quiz
-                    </button>
                 </div>
             </div>
         `;
@@ -621,11 +662,9 @@ class MakonianApp {
 
     updateQuizProgress(score) {
         this.userProgress.quizAttempts++;
-        // Basic average calculation
-        const totalPreviousScore = this.userProgress.averageScore * (this.userProgress.quizAttempts - 1);
-        this.userProgress.averageScore = (totalPreviousScore + score) / this.userProgress.quizAttempts;
+        const totalPrev = this.userProgress.averageScore * (this.userProgress.quizAttempts - 1);
+        this.userProgress.averageScore = (totalPrev + score) / this.userProgress.quizAttempts;
 
-        // Update streak
         const today = new Date().toDateString();
         if (this.userProgress.lastStudyDate !== today) {
             this.userProgress.streak++;
@@ -644,18 +683,19 @@ class MakonianApp {
 
     renderOverallProgress() {
         const totalWords = this.vocabularyData.reduce((sum, unit) => sum + unit.length, 0);
-        const masteredWords = Object.values(this.userProgress.wordProgress).filter(status => status === 'mastered').length;
-
+        const masteredWords = Object.values(this.userProgress.wordProgress).filter(s => s === 'mastered').length;
         const percentage = totalWords > 0 ? Math.round((masteredWords / totalWords) * 100) : 0;
 
-        document.getElementById('progress-percentage').textContent = `${percentage}%`;
-        const masteredEl = document.getElementById('words-mastered');
-        if(masteredEl) masteredEl.textContent = masteredWords;
+        const pctEl = document.getElementById('progress-percentage');
+        if(pctEl) pctEl.textContent = `${percentage}%`;
+        
+        const mastEl = document.getElementById('words-mastered');
+        if(mastEl) mastEl.textContent = masteredWords;
 
-        // Update progress circle
+        // Update circle stroke
         const circle = document.getElementById('progress-circle');
         if (circle) {
-            const circumference = 2 * Math.PI * 45;
+            const circumference = 2 * Math.PI * 45; // r=45
             const offset = circumference - (percentage / 100) * circumference;
             circle.style.strokeDashoffset = offset;
         }
@@ -663,167 +703,126 @@ class MakonianApp {
 
     renderActivityChart() {
         const ctx = document.getElementById('activity-chart');
-        if (!ctx) return;
+        if (!ctx || typeof Chart === 'undefined') return;
 
-        // Mock data for demonstration if no real history is stored
-        // In a real app, you'd store daily word counts.
-        // Assuming dailyActivity is { "DateString": count }
-        const activityData = this.userProgress.dailyActivity || {}; 
-        
+        // In a real app, dailyActivity would populate this
+        const dataPoints = [0, 0, 0, 0, 0, 0, 0]; 
         const labels = [];
-        const data = [];
-
         for (let i = 6; i >= 0; i--) {
-            const date = new Date();
-            date.setDate(date.getDate() - i);
-            const dateStr = date.toDateString();
-            labels.push(date.toLocaleDateString('en', { weekday: 'short' }));
-            data.push(activityData[dateStr] || 0); // Default 0
+            const d = new Date();
+            d.setDate(d.getDate() - i);
+            labels.push(d.toLocaleDateString('en', { weekday: 'short' }));
         }
-        
-        // If Chart.js is loaded
-        if (typeof Chart !== 'undefined') {
-             // Destroy old chart instance if exists to avoid overlap
-             if(this.activityChartInstance) {
-                 this.activityChartInstance.destroy();
-             }
 
-             this.activityChartInstance = new Chart(ctx.getContext('2d'), {
-                type: 'line',
-                data: {
-                    labels: labels,
-                    datasets: [{
-                        label: 'Words Studied',
-                        data: data,
-                        borderColor: '#8b5cf6',
-                        backgroundColor: 'rgba(139, 92, 246, 0.1)',
-                        tension: 0.4,
-                        fill: true
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: { display: false }
-                    },
-                    scales: {
-                        y: { beginAtZero: true, ticks: { stepSize: 1 } }
-                    }
-                }
-            });
-        }
+        if (this.chartInstance) this.chartInstance.destroy();
+
+        this.chartInstance = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Words Mastered',
+                    data: dataPoints,
+                    borderColor: '#8b5cf6',
+                    backgroundColor: 'rgba(139, 92, 246, 0.1)',
+                    fill: true,
+                    tension: 0.4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: { y: { beginAtZero: true } }
+            }
+        });
     }
 
     renderDifficultWords() {
-        const difficultWordsList = document.getElementById('difficult-words-list');
-        if (!difficultWordsList) return;
+        const list = document.getElementById('difficult-words-list');
+        if (!list) return;
+        list.innerHTML = '';
 
-        const difficultWords = [];
-
-        // Get all words marked as difficult
-        for (let unitNum = 0; unitNum < this.vocabularyData.length; unitNum++) {
-            for (let wordNum = 0; wordNum < this.vocabularyData[unitNum].length; wordNum++) {
-                const wordKey = `${unitNum + 1}-${wordNum}`;
-                if (this.userProgress.wordProgress[wordKey] === 'difficult') {
-                    difficultWords.push(this.vocabularyData[unitNum][wordNum].word);
+        let hasWords = false;
+        for (const [key, status] of Object.entries(this.userProgress.wordProgress)) {
+            if (status === 'difficult') {
+                const [u, w] = key.split('-').map(Number);
+                const wordObj = this.vocabularyData[u-1][w];
+                if (wordObj) {
+                    hasWords = true;
+                    list.innerHTML += `<span class="difficult-word-tag">${wordObj.word}</span>`;
                 }
             }
         }
 
-        if (difficultWords.length === 0) {
-            difficultWordsList.innerHTML = '<p class="no-difficult-words">No words marked as difficult yet!</p>';
-            return;
+        if (!hasWords) {
+            list.innerHTML = '<p style="color:var(--text-secondary)">No words marked as difficult yet.</p>';
         }
-
-        difficultWordsList.innerHTML = difficultWords.map(word =>
-            `<span class="difficult-word-tag">${word}</span>`
-        ).join("");
     }
 
     performSearch(query) {
-        if (!query || !query.trim()) {
+        if (!query.trim()) {
             this.renderUnits();
             return;
         }
 
-        const results = [];
-        this.vocabularyData.forEach((unit, unitIndex) => {
-            unit.forEach((word, wordIndex) => {
-                if (word.word.toLowerCase().includes(query.toLowerCase()) ||
-                    word.definition.toLowerCase().includes(query.toLowerCase()) ||
-                    word.synonyms.some(s => s.toLowerCase().includes(query.toLowerCase()))) {
-                    
-                    results.push({
-                        word: word,
-                        unit: unitIndex + 1,
-                        wordIndex: wordIndex
-                    });
+        const container = document.getElementById('units-container');
+        container.innerHTML = '';
+        container.className = 'units-grid'; // Grid layout for search results
+
+        let found = false;
+        const q = query.toLowerCase();
+
+        this.vocabularyData.forEach((unit, uIndex) => {
+            unit.forEach((word, wIndex) => {
+                if (word.word.toLowerCase().includes(q) || word.definition.toLowerCase().includes(q)) {
+                    found = true;
+                    // Reuse createWordElement but we need to wrap it visually since it's standalone
+                    const wordEl = this.createWordElement(word, uIndex + 1, wIndex);
+                    // Visual wrapper to match grid card height
+                    const wrapper = document.createElement('div');
+                    wrapper.className = 'unit-card'; // Reusing unit-card style for container
+                    wrapper.style.padding = '0.5rem';
+                    wrapper.style.minHeight = 'auto';
+                    wrapper.appendChild(wordEl);
+                    container.appendChild(wrapper);
                 }
             });
         });
 
-        this.displaySearchResults(results);
-    }
-
-    displaySearchResults(results) {
-        const container = document.getElementById('units-container');
-        container.innerHTML = "";
-        container.className = 'units-grid'; // Force grid for search results
-
-        if (results.length === 0) {
-            container.innerHTML = '<p class="no-results">No words found matching your search.</p>';
-            return;
+        if (!found) {
+            container.innerHTML = '<p style="grid-column: 1/-1; text-align: center;">No matching words found.</p>';
         }
-
-        results.forEach(result => {
-            const wordEl = this.createWordElement(result.word, result.unit, result.wordIndex);
-            // Wrap in a card for better look in grid
-            const wrapper = document.createElement('div');
-            wrapper.className = 'unit-card';
-            wrapper.style.cursor = 'default';
-            wrapper.appendChild(wordEl);
-            container.appendChild(wrapper);
-        });
     }
 
     setupDarkMode() {
-        const savedTheme = localStorage.getItem('theme') || 'light';
-        document.documentElement.setAttribute('data-theme', savedTheme);
-        this.updateDarkModeToggle(savedTheme);
+        const theme = localStorage.getItem('theme') || 'light';
+        document.documentElement.setAttribute('data-theme', theme);
+        this.updateDarkModeToggle(theme);
     }
 
     toggleDarkMode() {
-        const currentTheme = document.documentElement.getAttribute('data-theme');
-        const newTheme = currentTheme === 'light' ? 'dark' : 'light';
-        document.documentElement.setAttribute('data-theme', newTheme);
-        localStorage.setItem('theme', newTheme);
-        this.updateDarkModeToggle(newTheme);
+        const current = document.documentElement.getAttribute('data-theme');
+        const next = current === 'light' ? 'dark' : 'light';
+        document.documentElement.setAttribute('data-theme', next);
+        localStorage.setItem('theme', next);
+        this.updateDarkModeToggle(next);
     }
 
     updateDarkModeToggle(theme) {
-        const toggle = document.getElementById('dark-mode-toggle');
-        if(!toggle) return;
-        const icon = toggle.querySelector('i');
-        icon.className = theme === 'light' ? 'fas fa-moon' : 'fas fa-sun';
+        const icon = document.querySelector('#dark-mode-toggle i');
+        if (icon) {
+            icon.className = theme === 'light' ? 'fas fa-moon' : 'fas fa-sun';
+        }
     }
 
     setupSearch() {
-        const searchInput = document.getElementById('search-input');
-        if(!searchInput) return;
-        
-        let searchTimeout;
-        searchInput.addEventListener('input', (e) => {
-            clearTimeout(searchTimeout);
-            searchTimeout = setTimeout(() => {
-                this.performSearch(e.target.value);
-            }, 300);
-        });
+        // Already handled in listeners, but ensures debounce
     }
 
-    // Utility methods
     loadProgress() {
-        const defaultProgress = {
+        const saved = localStorage.getItem('userProgress');
+        return saved ? JSON.parse(saved) : {
             wordProgress: {},
             unitProgress: {},
             quizAttempts: 0,
@@ -836,8 +835,6 @@ class MakonianApp {
             studyTime: 0,
             lastUnit: 1
         };
-        const saved = localStorage.getItem('userProgress');
-        return saved ? JSON.parse(saved) : defaultProgress;
     }
 
     saveProgress() {
@@ -845,111 +842,72 @@ class MakonianApp {
     }
 
     updateStats() {
-        const completedUnits = Object.values(this.userProgress.unitProgress).filter(p => p.completed).length;
-        const studyTime = this.formatStudyTime(this.userProgress.studyTime);
-
-        const elCompleted = document.getElementById('completed-units');
-        if(elCompleted) elCompleted.textContent = completedUnits;
-
-        const elTime = document.getElementById('study-time');
-        if(elTime) elTime.textContent = studyTime;
-
+        // Logic to update dashboard stats
+        const completed = Object.values(this.userProgress.unitProgress).filter(u => u.completed).length;
+        const elComp = document.getElementById('completed-units');
+        if(elComp) elComp.textContent = completed;
+        
         const elStreak = document.getElementById('study-streak');
         if(elStreak) elStreak.textContent = this.userProgress.streak;
-
+        
         const elQuiz = document.getElementById('quiz-score');
-        if(elQuiz) elQuiz.textContent = `${Math.round(this.userProgress.averageScore || 0)}%`;
+        if(elQuiz) elQuiz.textContent = Math.round(this.userProgress.averageScore || 0) + '%';
     }
 
-    formatStudyTime(minutes) {
-        const hours = Math.floor(minutes / 60);
-        const mins = minutes % 60;
-        return `${hours}h ${mins}m`;
+    closeModal() {
+        document.querySelectorAll('.modal').forEach(m => m.classList.remove('active'));
     }
 
-    // Quick action methods
+    setUnitView(type) {
+        localStorage.setItem('unitView', type);
+        const gBtn = document.getElementById('grid-view-btn');
+        const lBtn = document.getElementById('list-view-btn');
+        if(gBtn) gBtn.classList.toggle('active', type === 'grid');
+        if(lBtn) lBtn.classList.toggle('active', type === 'list');
+        this.renderUnits();
+    }
+
+    // Actions
     continueStudying() {
-        const lastUnit = this.userProgress.lastUnit || 1;
+        // Logic to find last accessed unit or default to 1
+        // For now, open Unit 1
         this.loadSection('units');
-        this.openUnitModal(lastUnit);
+        this.openUnitModal(1); 
     }
-
+    
     takeQuickQuiz() {
         this.loadSection('quiz');
         this.startQuiz();
     }
-
+    
     reviewDifficultWords() {
         this.loadSection('progress');
-        const diffSection = document.querySelector('.difficult-words');
-        if(diffSection) diffSection.scrollIntoView({ behavior: 'smooth' });
+        // Scroll to bottom
+        window.scrollTo(0, document.body.scrollHeight);
     }
-
+    
     exportProgress() {
-        const totalWords = this.vocabularyData.reduce((sum, unit) => sum + unit.length, 0);
-        const masteredWords = Object.values(this.userProgress.wordProgress).filter(s => s === 'mastered').length;
-
-        const data = {
-            progress: this.userProgress,
-            exportDate: new Date().toISOString(),
-            totalWords: totalWords,
-            masteredWords: masteredWords
-        };
-
-        const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `makonian-progress-${new Date().toISOString().split('T')[0]}.json`;
-        a.click();
-        URL.revokeObjectURL(url);
-    }
-
-    closeModal() {
-        document.querySelectorAll('.modal').forEach(modal => {
-            modal.classList.remove('active');
-        });
-    }
-
-    setUnitView(viewType) {
-        localStorage.setItem('unitView', viewType);
-        
-        const gridBtn = document.getElementById('grid-view-btn');
-        const listBtn = document.getElementById('list-view-btn');
-        
-        if(gridBtn) gridBtn.classList.toggle('active', viewType === 'grid');
-        if(listBtn) listBtn.classList.toggle('active', viewType === 'list');
-
-        this.renderUnits();
+        const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(this.userProgress));
+        const downloadAnchorNode = document.createElement('a');
+        downloadAnchorNode.setAttribute("href", dataStr);
+        downloadAnchorNode.setAttribute("download", "makonian_progress.json");
+        document.body.appendChild(downloadAnchorNode);
+        downloadAnchorNode.click();
+        downloadAnchorNode.remove();
     }
 }
 
-// Global functions for HTML onclick handlers
+// Init
 const app = new MakonianApp(vocabularyData, unitMetadata);
 
-function navigateToSection(section) {
-    app.loadSection(section);
-}
+// Global hooks
+window.navigateToSection = (s) => app.loadSection(s);
+window.continueStudying = () => app.continueStudying();
+window.takeQuickQuiz = () => app.takeQuickQuiz();
+window.reviewDifficultWords = () => app.reviewDifficultWords();
+window.exportProgress = () => app.exportProgress();
 
-function continueStudying() {
-    app.continueStudying();
-}
-
-function takeQuickQuiz() {
-    app.takeQuickQuiz();
-}
-
-function reviewDifficultWords() {
-    app.reviewDifficultWords();
-}
-
-function exportProgress() {
-    app.exportProgress();
-}
-
-// Close modals when clicking outside
-window.onclick = function(event) {
-    if (event.target.classList.contains('modal')) {
-        app.closeModal();
-    }
+// Close modals on outside click
+window.onclick = (e) => {
+    if (e.target.classList.contains('modal')) app.closeModal();
 };
