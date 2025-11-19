@@ -108,7 +108,7 @@
                     <button id="list-view-btn" class="view-btn">
                         <i class="fas fa-list"></i> List
                     </button>
-                    </div>
+                </div>
             </div>
             <div id="units-container" class="units-grid">
                 </div>
@@ -220,10 +220,17 @@
 
     <div id="word-modal" class="modal">
         <div class="modal-content word-detail">
+            
             <div class="modal-header">
-                <h2 id="word-title"></h2>
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <h2 id="word-title"></h2>
+                    <button id="audio-btn" class="audio-btn" title="Listen to pronunciation">
+                        <i class="fas fa-volume-up"></i>
+                    </button>
+                </div>
                 <button class="close-modal">&times;</button>
             </div>
+
             <div class="modal-body">
                 <div class="word-info">
                     <div class="definition-section">
