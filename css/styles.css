@@ -717,7 +717,7 @@ body {
 .modal-content {
   background: var(--surface);
   border-radius: 1rem;
-  max-width: 800px;
+  max-width: 800px; /* Increased width for better grid */
   width: 90%;
   max-height: 85vh;
   overflow-y: auto;
@@ -778,7 +778,7 @@ body {
   z-index: 10;
 }
 
-/* --- New Unit Word List Grid --- */
+/* --- Unit Word List Grid Design --- */
 #modal-words-list {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
@@ -877,7 +877,7 @@ body {
   gap: 0.5rem;
 }
 
-/* Buttons (Standard) */
+/* --- Buttons (Standard) --- */
 .primary-btn, .secondary-btn, .difficulty-btn, .mastery-btn, .favorite-btn {
   padding: 0.75rem 1.5rem;
   border: none;
@@ -996,6 +996,32 @@ body {
   cursor: not-allowed;
   background: var(--surface-dark);
   border-color: var(--border);
+}
+
+/* --- Audio Button --- */
+.audio-btn {
+  background: var(--accent-violet);
+  color: var(--primary-violet);
+  border: none;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  margin-left: 0.5rem;
+}
+
+.audio-btn:hover {
+  background: var(--primary-violet);
+  color: white;
+  transform: scale(1.1);
+}
+
+.audio-btn:active {
+  transform: scale(0.95);
 }
 
 /* --- Responsive Design --- */
