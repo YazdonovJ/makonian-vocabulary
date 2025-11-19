@@ -4,7 +4,7 @@ class MakonianApp {
     constructor(vocabularyData, unitMetadata) {
         this.currentSection = 'home';
         this.currentUnit = null;
-        
+
         // State for Word Navigation
         this.currentViewedUnit = null;
         this.currentViewedIndex = 0;
@@ -102,7 +102,7 @@ class MakonianApp {
     populateQuizDropdown() {
         const select = document.getElementById('quiz-unit-select');
         if (!select) return;
-        
+
         // Append specific units to the dropdown
         this.unitMetadata.forEach(unit => {
             const option = document.createElement('option');
@@ -226,10 +226,10 @@ class MakonianApp {
         const studyBtn = document.getElementById('study-unit-btn');
         const newStudyBtn = studyBtn.cloneNode(true); // Remove old listeners
         studyBtn.parentNode.replaceChild(newStudyBtn, studyBtn);
-        
+
         newStudyBtn.onclick = () => {
             this.closeModal();
-            if(words.length > 0) {
+            if (words.length > 0) {
                 this.openWordModal(words[0], unitNumber, 0);
             }
         };
@@ -242,7 +242,7 @@ class MakonianApp {
         newQuizBtn.onclick = () => {
             this.closeModal();
             this.loadSection('quiz');
-            this.startQuiz(unitNumber); 
+            this.startQuiz(unitNumber);
         };
 
         modal.classList.add('active');
@@ -261,7 +261,7 @@ class MakonianApp {
                 <span class="word-text">${word.word}</span>
                 <span class="word-status ${progress}" data-word="${wordKey}">${progress}</span>
             </div>
-            <p class="word-definition-short">${word.definition.substring(0, 80)}...</p>
+            <p class="word-definition-short">${word.definition}</p>
             <div class="word-synonyms">
                 ${word.synonyms.slice(0, 3).map(s => `<span class="synonym-tag">${s}</span>`).join("")}
             </div>
@@ -271,7 +271,7 @@ class MakonianApp {
     }
 
     // --- Word Detail Modal Logic (Navigation + Audio + Visuals) ---
-    
+
     openWordModal(word, unitNumber, wordIndex) {
         const modal = document.getElementById('word-modal');
 
@@ -300,7 +300,7 @@ class MakonianApp {
 
         // 5. Setup Audio Button
         const audioBtn = document.getElementById('audio-btn');
-        if(audioBtn) {
+        if (audioBtn) {
             const newAudioBtn = audioBtn.cloneNode(true);
             audioBtn.parentNode.replaceChild(newAudioBtn, audioBtn);
             newAudioBtn.onclick = () => {
@@ -331,7 +331,7 @@ class MakonianApp {
         diffBtn.className = 'difficulty-btn';
         mastBtn.className = 'mastery-btn';
         favBtn.className = 'favorite-btn';
-        
+
         diffBtn.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Mark Difficult';
         mastBtn.innerHTML = '<i class="fas fa-check"></i> Mark Mastered';
         favBtn.innerHTML = '<i class="far fa-heart"></i> Add to Favorites';
@@ -340,8 +340,8 @@ class MakonianApp {
         if (status === 'difficult') {
             diffBtn.classList.add('active');
             diffBtn.innerHTML = '<i class="fas fa-check"></i> Marked Difficult';
-        } 
-        
+        }
+
         if (status === 'mastered') {
             mastBtn.classList.add('active');
             mastBtn.innerHTML = '<i class="fas fa-check-double"></i> Mastered';
@@ -361,7 +361,7 @@ class MakonianApp {
         // Remove old listeners using cloneNode
         const newDiffBtn = diffBtn.cloneNode(true);
         diffBtn.parentNode.replaceChild(newDiffBtn, diffBtn);
-        
+
         const newMastBtn = mastBtn.cloneNode(true);
         mastBtn.parentNode.replaceChild(newMastBtn, mastBtn);
 
@@ -388,7 +388,7 @@ class MakonianApp {
     setupWordNavigation(unitNumber, wordIndex) {
         const prevBtn = document.getElementById('prev-word-btn');
         const nextBtn = document.getElementById('next-word-btn');
-        
+
         // Get the total number of words in this current unit
         const unitWords = this.vocabularyData[unitNumber - 1];
         const totalWords = unitWords.length;
@@ -423,25 +423,25 @@ class MakonianApp {
             this.userProgress.wordProgress = {};
         }
         this.userProgress.wordProgress[wordKey] = status;
-        
+
         // Update Unit Mastery Stats
-        const [unitStr, ] = wordKey.split('-');
+        const [unitStr,] = wordKey.split('-');
         const unitNum = parseInt(unitStr);
-        
+
         if (!this.userProgress.unitProgress[unitNum]) {
             this.userProgress.unitProgress[unitNum] = { mastered: 0, completed: false };
         }
-        
+
         // Recalculate mastery for this unit
         let masteredCount = 0;
-        const unitWordsLen = this.vocabularyData[unitNum-1].length;
-        
-        for(let i=0; i<unitWordsLen; i++) {
-             if(this.userProgress.wordProgress[`${unitNum}-${i}`] === 'mastered') {
-                 masteredCount++;
-             }
+        const unitWordsLen = this.vocabularyData[unitNum - 1].length;
+
+        for (let i = 0; i < unitWordsLen; i++) {
+            if (this.userProgress.wordProgress[`${unitNum}-${i}`] === 'mastered') {
+                masteredCount++;
+            }
         }
-        
+
         this.userProgress.unitProgress[unitNum].mastered = masteredCount;
         if (masteredCount === unitWordsLen) {
             this.userProgress.unitProgress[unitNum].completed = true;
@@ -449,15 +449,15 @@ class MakonianApp {
 
         this.saveProgress();
         this.updateStats();
-        
+
         // If unit view is open, refresh it
-        if(document.getElementById('units').classList.contains('active')) {
-             this.renderUnits();
+        if (document.getElementById('units').classList.contains('active')) {
+            this.renderUnits();
         }
-        
+
         // Also update the unit modal list badges if open
         const statusBadge = document.querySelector(`.word-status[data-word="${wordKey}"]`);
-        if(statusBadge) {
+        if (statusBadge) {
             statusBadge.textContent = status;
             statusBadge.className = `word-status ${status}`;
         }
@@ -479,11 +479,21 @@ class MakonianApp {
         const quizContent = document.getElementById('quiz-content');
         quizContent.innerHTML = `
             <div class="quiz-welcome">
-                <i class="fas fa-brain"></i>
+                <i class="fas fa-brain quiz-icon-large"></i>
                 <h2>Ready to test your knowledge?</h2>
                 <p>Choose your quiz settings and click Start Quiz to begin!</p>
+                <button id="start-quiz-btn" class="primary-btn">
+                    Start the Quiz <i class="fas fa-play"></i>
+                </button>
             </div>
         `;
+
+        const startBtn = document.getElementById('start-quiz-btn');
+        if (startBtn) {
+            startBtn.addEventListener('click', () => {
+                this.startQuiz();
+            });
+        }
     }
 
     startQuiz(forcedUnit = null) {
@@ -495,7 +505,7 @@ class MakonianApp {
         let unit = 'random';
         if (forcedUnit) {
             unit = forcedUnit.toString();
-            if(unitSelect) unitSelect.value = unit;
+            if (unitSelect) unitSelect.value = unit;
         } else if (unitSelect) {
             unit = unitSelect.value;
         }
@@ -508,12 +518,12 @@ class MakonianApp {
         this.quizState.score = 0;
 
         this.generateQuizQuestions();
-        
+
         if (this.quizState.questions.length === 0) {
-             alert("No words available for this selection. Try selecting 'All Words' or a specific unit.");
-             return;
+            alert("No words available for this selection. Try selecting 'All Words' or a specific unit.");
+            return;
         }
-        
+
         this.showQuizQuestion();
     }
 
@@ -539,18 +549,18 @@ class MakonianApp {
                     }
                 }
             }
-             if (words.length === 0) {
-                 for (let unit of this.vocabularyData) {
+            if (words.length === 0) {
+                for (let unit of this.vocabularyData) {
                     words = words.concat(unit);
-                 }
-             }
-             words = this.shuffleArray(words).slice(0, 20);
+                }
+            }
+            words = this.shuffleArray(words).slice(0, 20);
 
         } else if (this.quizState.unit === 'all') {
-              for (let unit of this.vocabularyData) {
+            for (let unit of this.vocabularyData) {
                 words = words.concat(unit);
-              }
-             words = this.shuffleArray(words).slice(0, 20);
+            }
+            words = this.shuffleArray(words).slice(0, 20);
         } else {
             const unitNum = parseInt(this.quizState.unit);
             if (!isNaN(unitNum) && this.vocabularyData[unitNum - 1]) {
@@ -592,10 +602,10 @@ class MakonianApp {
     generateSynonymOptions(word) {
         const correctSynonym = word.synonyms[0] || "No synonym available";
         const options = [correctSynonym];
-        
+
         const otherWords = this.getRandomWords(3, word.word);
         otherWords.forEach(w => {
-            if(w.synonyms && w.synonyms.length > 0) {
+            if (w.synonyms && w.synonyms.length > 0) {
                 options.push(w.synonyms[0]);
             } else {
                 options.push("Similar meaning");
@@ -681,10 +691,10 @@ class MakonianApp {
     }
 
     selectQuizAnswer(element, selectedAnswer) {
-        if(element.classList.contains('correct') || element.classList.contains('incorrect')) return;
-        
+        if (element.classList.contains('correct') || element.classList.contains('incorrect')) return;
+
         const options = document.querySelectorAll('.quiz-option');
-        options.forEach(opt => opt.onclick = null); 
+        options.forEach(opt => opt.onclick = null);
 
         element.classList.add('selected');
         this.checkAnswer(element, selectedAnswer);
@@ -770,7 +780,7 @@ class MakonianApp {
             this.userProgress.streak++;
             this.userProgress.lastStudyDate = today;
         }
-        
+
         this.saveProgress();
         this.updateStats();
     }
@@ -787,10 +797,10 @@ class MakonianApp {
         const percentage = totalWords > 0 ? Math.round((masteredWords / totalWords) * 100) : 0;
 
         const pctEl = document.getElementById('progress-percentage');
-        if(pctEl) pctEl.textContent = `${percentage}%`;
-        
+        if (pctEl) pctEl.textContent = `${percentage}%`;
+
         const mastEl = document.getElementById('words-mastered');
-        if(mastEl) mastEl.textContent = masteredWords;
+        if (mastEl) mastEl.textContent = masteredWords;
 
         const circle = document.getElementById('progress-circle');
         if (circle) {
@@ -804,7 +814,7 @@ class MakonianApp {
         const ctx = document.getElementById('activity-chart');
         if (!ctx || typeof Chart === 'undefined') return;
 
-        const dataPoints = [0, 0, 0, 0, 0, 0, 0]; 
+        const dataPoints = [0, 0, 0, 0, 0, 0, 0];
         const labels = [];
         for (let i = 6; i >= 0; i--) {
             const d = new Date();
@@ -845,10 +855,15 @@ class MakonianApp {
         for (const [key, status] of Object.entries(this.userProgress.wordProgress)) {
             if (status === 'difficult') {
                 const [u, w] = key.split('-').map(Number);
-                if (this.vocabularyData[u-1] && this.vocabularyData[u-1][w]) {
-                    const wordObj = this.vocabularyData[u-1][w];
+                if (this.vocabularyData[u - 1] && this.vocabularyData[u - 1][w]) {
+                    const wordObj = this.vocabularyData[u - 1][w];
                     hasWords = true;
-                    list.innerHTML += `<span class="difficult-word-tag">${wordObj.word}</span>`;
+
+                    const tag = document.createElement('span');
+                    tag.className = 'difficult-word-tag';
+                    tag.textContent = wordObj.word;
+                    tag.onclick = () => this.openWordModal(wordObj, u, w);
+                    list.appendChild(tag);
                 }
             }
         }
@@ -940,13 +955,13 @@ class MakonianApp {
     updateStats() {
         const completed = Object.values(this.userProgress.unitProgress).filter(u => u.completed).length;
         const elComp = document.getElementById('completed-units');
-        if(elComp) elComp.textContent = completed;
-        
+        if (elComp) elComp.textContent = completed;
+
         const elStreak = document.getElementById('study-streak');
-        if(elStreak) elStreak.textContent = this.userProgress.streak;
-        
+        if (elStreak) elStreak.textContent = this.userProgress.streak;
+
         const elQuiz = document.getElementById('quiz-score');
-        if(elQuiz) elQuiz.textContent = Math.round(this.userProgress.averageScore || 0) + '%';
+        if (elQuiz) elQuiz.textContent = Math.round(this.userProgress.averageScore || 0) + '%';
     }
 
     closeModal() {
@@ -957,26 +972,26 @@ class MakonianApp {
         localStorage.setItem('unitView', type);
         const gBtn = document.getElementById('grid-view-btn');
         const lBtn = document.getElementById('list-view-btn');
-        if(gBtn) gBtn.classList.toggle('active', type === 'grid');
-        if(lBtn) lBtn.classList.toggle('active', type === 'list');
+        if (gBtn) gBtn.classList.toggle('active', type === 'grid');
+        if (lBtn) lBtn.classList.toggle('active', type === 'list');
         this.renderUnits();
     }
 
     continueStudying() {
         this.loadSection('units');
-        this.openUnitModal(1); 
+        this.openUnitModal(1);
     }
-    
+
     takeQuickQuiz() {
         this.loadSection('quiz');
         this.startQuiz();
     }
-    
+
     reviewDifficultWords() {
         this.loadSection('progress');
         window.scrollTo(0, document.body.scrollHeight);
     }
-    
+
     exportProgress() {
         const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(this.userProgress));
         const downloadAnchorNode = document.createElement('a');
