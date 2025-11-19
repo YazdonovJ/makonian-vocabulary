@@ -270,7 +270,7 @@ class MakonianApp {
         return wordEl;
     }
 
-    // --- Word Detail Modal Logic (With Navigation & Visual Feedback) ---
+    // --- Word Detail Modal Logic (Navigation + Audio + Visuals) ---
     
     openWordModal(word, unitNumber, wordIndex) {
         const modal = document.getElementById('word-modal');
@@ -298,7 +298,25 @@ class MakonianApp {
         // 4. Setup Navigation Buttons (Next/Prev)
         this.setupWordNavigation(unitNumber, wordIndex);
 
+        // 5. Setup Audio Button
+        const audioBtn = document.getElementById('audio-btn');
+        if(audioBtn) {
+            const newAudioBtn = audioBtn.cloneNode(true);
+            audioBtn.parentNode.replaceChild(newAudioBtn, audioBtn);
+            newAudioBtn.onclick = () => {
+                this.playAudio(word.word);
+            };
+        }
+
         modal.classList.add('active');
+    }
+
+    playAudio(text) {
+        window.speechSynthesis.cancel(); // Stop any currently playing
+        const utterance = new SpeechSynthesisUtterance(text);
+        utterance.lang = 'en-US';
+        utterance.rate = 0.9; // Slightly slower for clarity
+        window.speechSynthesis.speak(utterance);
     }
 
     updateWordModalButtons(wordKey) {
@@ -404,10 +422,6 @@ class MakonianApp {
         if (!this.userProgress.wordProgress) {
             this.userProgress.wordProgress = {};
         }
-        
-        // Toggle logic: if clicking "difficult" and it's already "difficult", unmark it (set to 'new')
-        // Only for favorites is it a pure toggle, but for status it's nice to have too.
-        // Current logic: Set to clicked status.
         this.userProgress.wordProgress[wordKey] = status;
         
         // Update Unit Mastery Stats
@@ -436,7 +450,12 @@ class MakonianApp {
         this.saveProgress();
         this.updateStats();
         
-        // If the Unit Modal list is open, update the status badge there too
+        // If unit view is open, refresh it
+        if(document.getElementById('units').classList.contains('active')) {
+             this.renderUnits();
+        }
+        
+        // Also update the unit modal list badges if open
         const statusBadge = document.querySelector(`.word-status[data-word="${wordKey}"]`);
         if(statusBadge) {
             statusBadge.textContent = status;
